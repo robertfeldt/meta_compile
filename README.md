@@ -35,6 +35,14 @@ And ensure they are really the same:
 
         diff t.rb t2.rb
 
+To be really sure we can try the generated t2.rb as a meta-compiler:
+
+        ruby t2.rb bootstrap/meta_for_ruby.txt t3.rb
+
+and this should convince us:
+
+        diff t2.rb t3.rb
+
 Limitations
 -----------
 + Very bad/little error handling
