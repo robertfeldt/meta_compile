@@ -30,7 +30,7 @@ stat = .id <'def compile_' $> '=' exp1 ';' <'end'>;
 program = '.syntax' .id 
   <'require "strscan"'>
   <'class ' $> 
-  <'  def self.compile(str, out, id = "program")'>
+  <'  def compile(str, out, id = "program")'>
   <'    @i, @o = StringScanner.new str, out'>
   <'    send ("compile_" + id).to_sym'>
   <'  end'>
@@ -45,9 +45,9 @@ program = '.syntax' .id
   <'    @i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9]*/'>
   <'  end'>
   <'  def read_string'>
-  <'    @i.scan /\s*/; @f = @t = @i.scan /'[^']*'/;'>
+  <'    @i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/;'>
   <'  end'>
   *stat '.end'
   <'end'>
-  <'File.open(ARGV[1], "w") {|f| MetaRubyCompiler.compile(File.read(ARGV[0]), f, "program")}'>;
+  <'File.open(ARGV[1], "w") {|f| MetaRubyCompiler.new.compile(File.read(ARGV[0]), f, "program")}'>;
 .end

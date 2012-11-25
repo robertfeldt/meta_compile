@@ -19,33 +19,35 @@ task :bootstrap_c do
 end
 
 task :bootstrap_ruby do
-	Dir.chdir "bootstrap"
-	puts "1. Build bootstrap compiler"
-	pexec "gcc -o bootstrap_compiler bootstrap.c"
-	puts "2. Use the bootstrapped meta compiler to compile the meta_for_ruby.txt description"
-	pexec "./bootstrap_compiler meta_for_ruby.txt compile_syntax_c_to_ruby.c"
-	puts "3. Build the stepping stone ruby compiler we created from the meta description"
-	pexec "gcc -o meta_r compile_syntax_c_to_ruby.c"
-	puts "4. Now use the generated stepping stone compiler to generate a ruby compiler for the ruby meta syntax"
-	pexec "./meta_r meta_for_ruby.txt meta_ruby_compiler_from_c.rb"
-	puts "5. Run the generated ruby meta compiler to a ruby version"
-	pexec "ruby -I. meta_ruby_compiler_from_c.rb meta_for_ruby.txt meta_ruby_compiler.rb"
-	puts "6. The Ruby version differ in that it has single quotes instead of double quotes around emitted strings"
-	pexec "diff meta_ruby_compiler_from_c.rb meta_ruby_compiler.rb"
-	puts "7. But we can generate again and ensure it is a meta compiler"
-	pexec "ruby -I. meta_ruby_compiler.rb meta_for_ruby.txt meta_ruby_compiler2.rb"
-	pexec "diff meta_ruby_compiler.rb meta_ruby_compiler2.rb"
-	Dir.chdir ".."
+	Dir.chdir("bootstrap") do
+		puts "1. Build bootstrap compiler"
+		pexec "gcc -o bootstrap_compiler bootstrap.c"
+		puts "2. Use the bootstrapped meta compiler to compile the meta_for_ruby.txt description"
+		pexec "./bootstrap_compiler meta_for_ruby.txt compile_syntax_c_to_ruby.c"
+		puts "3. Build the stepping stone ruby compiler we created from the meta description"
+		pexec "gcc -o meta_r compile_syntax_c_to_ruby.c"
+		puts "4. Now use the generated stepping stone compiler to generate a ruby compiler for the ruby meta syntax"
+		pexec "./meta_r meta_for_ruby.txt meta_ruby_compiler_from_c.rb"
+		puts "5. Run the generated ruby meta compiler to a ruby version"
+		pexec "ruby -I. meta_ruby_compiler_from_c.rb meta_for_ruby.txt meta_ruby_compiler.rb"
+		puts "6. The Ruby version differ in that it has single quotes instead of double quotes around emitted strings"
+		pexec "diff meta_ruby_compiler_from_c.rb meta_ruby_compiler.rb"
+		puts "7. But we can generate again and ensure it is a meta compiler"
+		pexec "ruby -I. meta_ruby_compiler.rb meta_for_ruby.txt meta_ruby_compiler2.rb"
+		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler2.rb"
+	end
 end
 
 task :default => :bootstrap_ruby
 
 task :clean do
-	Dir.chdir "bootstrap"
-	pexec "rm -rf bootstrap_compiler meta_compiler_generated_by_bootstrap_compiler.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r"
+	Dir.chdir("bootstrap") do
+	  pexec "rm -rf bootstrap_compiler meta_compiler_generated_by_bootstrap_compiler.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r"
+  end
 end
 
 task :clobber => [:clean] do
-	Dir.chdir "bootstrap"
-	pexec "rm -rf meta_for_ruby.rb"
+	Dir.chdir("bootstrap") do
+	  pexec "rm -rf meta_ruby_compiler.rb"
+	end
 end
