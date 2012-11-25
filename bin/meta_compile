@@ -7,8 +7,8 @@ compile_program
 end
 def compile_outarg
 begin
-@i.scan /\s*/; s='$'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='$'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 @o.print '@o.print @t'
 @o.print "\n"
@@ -24,16 +24,16 @@ end while false
 end
 def compile_out
 begin
-@i.scan /\s*/; s='<'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='<'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 begin
 compile_outarg
 end while @f
 @f = true
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
-@i.scan /\s*/; s='>'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='>'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print '@o.print "\n"'
 @o.print "\n"
@@ -53,44 +53,45 @@ break if @f
 if @f
 @o.print '@i.scan /\s*/; s='
 @o.print @t
+@o.print '; l=s.length;'
 @o.print "\n"
-@o.print '@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil'
+@o.print '@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil'
 @o.print "\n"
 end
 break if @f
-@i.scan /\s*/; s='.id'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='.id'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 @o.print '@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/'
 @o.print "\n"
 end
 break if @f
-@i.scan /\s*/; s='.string'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='.string'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 @o.print '@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/'
 @o.print "\n"
 end
 break if @f
-@i.scan /\s*/; s='('
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='('; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 compile_exp1
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
-@i.scan /\s*/; s=')'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s=')'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
 end
 break if @f
-@i.scan /\s*/; s='.e'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='.e'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 @o.print '@f = true'
 @o.print "\n"
 end
 break if @f
-@i.scan /\s*/; s='*'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='*'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 @o.print 'begin'
 @o.print "\n"
@@ -148,8 +149,8 @@ compile_exp2
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
 begin
 begin
-@i.scan /\s*/; s='|'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='|'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 @o.print 'break if @f'
 @o.print "\n"
@@ -165,20 +166,20 @@ raise("error at: " + @i.rest.split("\n")[0]) if !@f
 end
 end while false
 end
-def compile_stat
+def compile_rule
 begin
 @i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
 if @f
 @o.print 'def compile_'
 @o.print @t
 @o.print "\n"
-@i.scan /\s*/; s='='
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='='; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
 compile_exp1
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
-@i.scan /\s*/; s=';'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s=';'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end'
 @o.print "\n"
@@ -187,8 +188,8 @@ end while false
 end
 def compile_program
 begin
-@i.scan /\s*/; s='.syntax'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='.syntax'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
 @i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
@@ -208,12 +209,12 @@ raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end'
 @o.print "\n"
 begin
-compile_stat
+compile_rule
 end while @f
 @f = true
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
-@i.scan /\s*/; s='.end'
-@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+@i.scan /\s*/; s='.end'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end'
 @o.print "\n"
