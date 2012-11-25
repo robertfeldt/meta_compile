@@ -25,11 +25,11 @@ Manually verifying that it is a meta compiler
 
 In your local copy of the git repo, use the pre-generated binary to compile the specification file to a ruby file:
 
-        bin/meta_compile bootstrap/meta_to_ruby_minimal.meta t.rb
+        bin/meta_compile bootstrap/meta_to_ruby_minimal.meta > t.rb
 
 This generates a t.rb which is itself a compiler for meta syntax specs. So lets use it to generate itself:
 
-        ruby t.rb bootstrap/meta_to_ruby_minimal.meta t2.rb
+        ruby t.rb bootstrap/meta_to_ruby_minimal.meta > t2.rb
 
 And ensure they are really the same:
 
@@ -37,7 +37,7 @@ And ensure they are really the same:
 
 To be really sure we can try the generated t2.rb as a meta-compiler:
 
-        ruby t2.rb bootstrap/meta_to_ruby_minimal.meta t3.rb
+        ruby t2.rb bootstrap/meta_to_ruby_minimal.meta > t3.rb
 
 and this should convince us:
 
