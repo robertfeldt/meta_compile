@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = "A meta compilation framework à la Meta-II by Val Schorre"
   s.authors     = ["Robert Feldt"]
   s.email       = 'robert.feldt@gmail.com'
-  s.files       = ["lib/meta_compile.rb"]
+  s.files       = ["bin/meta_compile"]
   s.homepage    =
     'http://rubygems.org/gems/meta_compile'
 end

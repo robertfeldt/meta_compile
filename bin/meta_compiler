@@ -14,7 +14,7 @@ if @f
 @o.print "\n"
 end
 break if @f
-@i.scan /\s*/; @f=@t=@i.scan /\047[^\047]*\047/
+@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/
 if @f
 @o.print '@o.print '
 @o.print @t
@@ -42,14 +42,14 @@ end while false
 end
 def compile_exp3
 begin
-@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/
+@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
 if @f
 @o.print 'compile_'
 @o.print @t
 @o.print "\n"
 end
 break if @f
-@i.scan /\s*/; @f=@t=@i.scan /\047[^\047]*\047/
+@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/
 if @f
 @o.print '@i.scan /\s*/; s='
 @o.print @t
@@ -61,14 +61,14 @@ break if @f
 @i.scan /\s*/; s='.id'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
 if @f
-@o.print '@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/'
+@o.print '@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/'
 @o.print "\n"
 end
 break if @f
 @i.scan /\s*/; s='.string'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
 if @f
-@o.print '@i.scan /\s*/; @f=@t=@i.scan /\047[^\047]*\047/'
+@o.print '@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/'
 @o.print "\n"
 end
 break if @f
@@ -167,7 +167,7 @@ end while false
 end
 def compile_stat
 begin
-@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/
+@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
 if @f
 @o.print 'def compile_'
 @o.print @t
@@ -190,7 +190,7 @@ begin
 @i.scan /\s*/; s='.syntax'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
 if @f
-@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/
+@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
 raise("error at token: " + @i.rest) unless @f
 @o.print '#!/usr/bin/env ruby'
 @o.print "\n"

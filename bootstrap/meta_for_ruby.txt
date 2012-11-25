@@ -8,8 +8,8 @@ output = '<' *arg '>' <'@o.print "\n"'>;
 exp3 = .id <'compile_' $>
      | .string <'@i.scan /\s*/; s=' $>
          <'@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil'>
-     | '.id' <'@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/'>
-     | '.string' <'@i.scan /\s*/; @f=@t=@i.scan /\047[^\047]*\047/'>
+     | '.id' <'@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/'>
+     | '.string' <'@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/'>
      | '(' exp1 ')'
      | '.e' <'@f = true'>
      | '*' <'begin'> exp3 <'end while @f'> <'@f = true'>;
