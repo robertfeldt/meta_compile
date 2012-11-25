@@ -12,7 +12,13 @@ Clone the git repo and then run:
 
         rake bootstrap
 
-and it will bootstrap and print info about each step. This requires gcc, rake and a recent ruby.
+and it will bootstrap and print info about each step. This requires gcc, rake and a recent ruby. 
+
+If you only want the finished result you can just install as a gem:
+
+        gem install meta_compile
+
+since it is available on [rubygems.org](https://rubygems.org/gems/meta_compile).
 
 Manually verifying that it is a meta compiler
 ---------------------------------------------
