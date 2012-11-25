@@ -79,6 +79,7 @@ end
 
 task :clobber => [:clean] do
 	Dir.chdir("bootstrap") do
-	  pexec "rm -rf meta_ruby_compiler.rb"
+	  pexec "rm -rf meta_ruby_compiler.rb meta_compile*.gem"
 	end
+	pexec "rm meta_compile*.gem"
 end
