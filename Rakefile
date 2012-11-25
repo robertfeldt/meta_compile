@@ -1,3 +1,6 @@
+require 'fileutils'
+
+# A system command that prints commands to stdout before running them
 def pexec(str)
 	puts str
 	STDOUT.flush
@@ -5,6 +8,7 @@ def pexec(str)
 	puts ""
 end
 
+desc "Bootstrap our version of Long Nguyen's C version of Meta-II"
 task :bootstrap_c do
 	Dir.chdir "bootstrap"
 	puts "1. Build bootstrap compiler"
@@ -24,6 +28,7 @@ def loc(filename)
 	File.readlines(filename).map {|l| l.strip.length==0?nil:l}.compact.length
 end
 
+desc "Bootstrap the Ruby Meta-II compiler"
 task :bootstrap do
 	Dir.chdir("bootstrap") do
 		puts "1. Build bootstrap compiler"
@@ -48,12 +53,20 @@ task :bootstrap do
 	end
 end
 
-require 'fileutils'
-
+desc "Make binary from the bootstrapped ruby meta-II compiler"
 task :make_bin => [:bootstrap] do
 	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compile"
 	FileUtils.chmod 0755, "bin/meta_compile"
 	puts "Created binary in bin/meta_compile"
+end
+
+desc "Update line counts in README.template.md to make README.md"
+task :update_readme => [:bootstrap] do
+	rmeta2_compiler_loc = loc('bootstrap/meta_ruby_compiler.rb')
+	rmeta2_spec_loc = loc('bootstrap/meta_for_ruby.txt')
+	readme = File.read("README.template.md").gsub("%%RMetaII_SPEC_LOC%%", rmeta2_spec_loc.to_s)
+	readme = readme.gsub("%%RMetaII_COMPILER_LOC%%", rmeta2_compiler_loc.to_s)
+	File.open("README.md", "w") {|f| f.puts readme}
 end
 
 task :default => :make_bin
