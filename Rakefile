@@ -93,7 +93,7 @@ task :ensure_meta => [:make_bin] do
 end
 
 desc "Update line counts in README.template.md to make README.md"
-task :update_readme => [:bootstrap] do
+task :update => [:bootstrap] do
 	rmeta2_compiler_loc = loc('bootstrap/meta_ruby_compiler.rb')
 	rmeta2_spec_loc = loc('syntaxes/meta_to_ruby_minimal.meta')
 	readme = File.read("README.template.md").gsub("%%RMetaII_SPEC_LOC%%", rmeta2_spec_loc.to_s)
@@ -116,7 +116,7 @@ task :install_gem => [:build_gem] do
 end
 
 desc "Deploy gem"
-task :deploy => [:install_gem] do
+task :deploy => [:update, :install_gem] do
 	pexec "gem push meta_compile*.gem"
 end
 
