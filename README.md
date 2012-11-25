@@ -13,3 +13,18 @@ Clone the git repo and then run:
         rake bootstrap
 
 and it will bootstrap and print info about each step. This requires gcc, rake and a recent ruby.
+
+Manually verifying that it is a meta compiler
+---------------------------------------------
+
+In your local copy of the git repo, use the pre-generated binary to compile the specification file to a ruby file:
+
+        bin/meta_compile bootstrap/meta_for_ruby.txt t.rb
+
+This generates a t.rb which is itself a compiler for meta syntax specs. So lets use it to generate itself:
+
+        ruby t.rb bootstrap/meta_for_ruby.txt t2.rb
+
+And ensure they are really the same:
+
+        diff t.rb t2.rb
