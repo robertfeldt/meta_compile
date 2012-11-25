@@ -40,14 +40,14 @@ task :bootstrap do
 		puts "4. Now use the generated stepping stone compiler to generate a ruby compiler for the ruby meta syntax"
 		pexec "./meta_r meta_to_ruby_minimal.meta meta_ruby_compiler_from_c.rb"
 		puts "5. Run the generated ruby meta compiler to a ruby version"
-		pexec "ruby -I. meta_ruby_compiler_from_c.rb meta_to_ruby_minimal.meta meta_ruby_compiler.rb"
+		pexec "ruby -I. meta_ruby_compiler_from_c.rb meta_to_ruby_minimal.meta > meta_ruby_compiler.rb"
 		puts "6. Ruby version differ since it has single instead of double quotes around strings"
 		#pexec "diff meta_ruby_compiler_from_c.rb meta_ruby_compiler.rb"
 		puts "7. But we can generate again and ensure it is a meta compiler"
-		pexec "ruby -I. meta_ruby_compiler.rb meta_to_ruby_minimal.meta meta_ruby_compiler2.rb"
+		pexec "ruby -I. meta_ruby_compiler.rb meta_to_ruby_minimal.meta > meta_ruby_compiler2.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler2.rb"
 		puts "8. One more round just to show off... :)"
-		pexec "ruby -I. meta_ruby_compiler2.rb meta_to_ruby_minimal.meta meta_ruby_compiler3.rb"
+		pexec "ruby -I. meta_ruby_compiler2.rb meta_to_ruby_minimal.meta > meta_ruby_compiler3.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler3.rb"
 		puts "Summary:\nCreated a #{loc('meta_ruby_compiler.rb')} line meta-II meta compiler from a #{loc('meta_to_ruby_minimal.meta')} line meta-II spec\n\n"
 	end
@@ -55,7 +55,7 @@ end
 
 # Bootstrap a syntax from the meta_compile compiler
 def bootstrap_from_meta_compile(syntaxFile)
-	pexec "meta_compile #{syntaxFile} tgen.rb"
+	pexec "meta_compile #{syntaxFile} > tgen.rb"
 	ensure_is_meta("tgen.rb", syntaxFile)
 end
 
@@ -64,10 +64,10 @@ def diff_files(f1, f2)
 end
 
 def ensure_is_meta(generatedFile, specFile)
-	pexec "ruby #{generatedFile} #{specFile} t.rb"
-	pexec "ruby t.rb #{specFile} t2.rb"
+	pexec "ruby #{generatedFile} #{specFile} > t.rb"
+	pexec "ruby t.rb #{specFile} > t2.rb"
 	# Obviously we should now be able to go on and on... :)
-	pexec "ruby t2.rb #{specFile} t3.rb"
+	pexec "ruby t2.rb #{specFile} > t3.rb"
 	begin
 		if diff_files("t.rb", "t2.rb") || diff_files("t2.rb", "t3.rb")
 			puts "ERROR: #{generatedFile} is NOT a meta compiler (generated from #{specFile})"
