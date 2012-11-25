@@ -10,6 +10,6 @@ Install
 
 Clone the git repo and then run:
 
-        `rake bootstrap`
+        rake bootstrap
 
 and it will bootstrap and print info about each step. This requires gcc, rake and a recent ruby.
