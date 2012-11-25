@@ -24,7 +24,7 @@ def loc(filename)
 	File.readlines(filename).map {|l| l.strip.length==0?nil:l}.compact.length
 end
 
-task :bootstrap_ruby do
+task :bootstrap do
 	Dir.chdir("bootstrap") do
 		puts "1. Build bootstrap compiler"
 		pexec "gcc -o bootstrapped_c bootstrap.c"
@@ -50,7 +50,7 @@ end
 
 require 'fileutils'
 
-task :make_bin => [:bootstrap_ruby] do
+task :make_bin => [:bootstrap] do
 	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compile"
 	FileUtils.chmod 0755, "bin/meta_compile"
 	puts "Created binary in bin/meta_compile"
