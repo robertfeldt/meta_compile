@@ -98,14 +98,14 @@ end
 
 task :clean do
 	Dir.chdir("bootstrap") do
-	  pexec "rm -rf bootstrapped_c meta_compiler_from_boostrapped_c.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler3.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r"
+	  FileUtils.rm_f  %w{bootstrapped_c meta_compiler_from_boostrapped_c.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler3.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r}
   end
-	pexec "rm t.rb"  
+  FileUtils.rm_f Dir.glob("t*.rb")
 end
 
 task :clobber => [:clean] do
 	Dir.chdir("bootstrap") do
-	  pexec "rm -rf meta_ruby_compiler.rb meta_compile*.gem"
+	  FileUtils.rm_f %w{meta_ruby_compiler.rb meta_compile*.gem}
 	end
-	pexec "rm meta_compile*.gem"
+  FileUtils.rm_f Dir.glob("meta_compile-*.gem")
 end
