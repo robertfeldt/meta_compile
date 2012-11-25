@@ -7,6 +7,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Robert Feldt"]
   s.email       = 'robert.feldt@gmail.com'
   s.files       = ["bin/meta_compile"]
+  s.executables << 'meta_compile'
   s.homepage    =
     'http://rubygems.org/gems/meta_compile'
 end

@@ -30,7 +30,7 @@ program = '.syntax' .id
   <'@i, @o = StringScanner.new(str), out'>
   <'compile_program'> <'end'>
   *stat '.end' <'end'>
-  <'puts "Usage: meta_compiler <input> <output>" unless ARGV.length == 2'>
+  <'begin; puts "Use: meta_compile <in> <out>"; exit; end if ARGV.length != 2'>
   <'File.open(ARGV[1], "w") {|f| RMetaII.new.compile(File.read(ARGV[0]), f)}'>;
 
 .end
