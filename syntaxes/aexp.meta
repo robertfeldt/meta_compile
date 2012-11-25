@@ -1,0 +1,16 @@
+.syntax aexp
+
+aexp = as *as;
+as = .id <'address' $> ':=' ex1 <'store'> ';';
+ex1 = ex2 *(  '+' ex2 <'add'>
+            | '-' ex2 <'sub'>);
+ex2 = ex3 *(  '*' ex3 <'mpy'>
+            | '/' ex3 <'div'>);
+ex3 = ex4 *('^' ex3 <'exp'>);
+ex4 = '+' ex5
+    | '-' ex5 <'minus'>
+    | ex5;
+ex5 = .id     <'load' $>
+    | '(' ex1 ')';
+
+.end
