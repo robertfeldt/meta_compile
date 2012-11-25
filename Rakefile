@@ -34,22 +34,22 @@ task :bootstrap do
 		puts "1. Build bootstrap compiler"
 		pexec "gcc -o bootstrapped_c bootstrap.c"
 		puts "2. Use the c meta compiler to compile the meta_to_ruby_minimal.meta description"
-		pexec "./bootstrapped_c meta_to_ruby_minimal.meta compile_to_ruby.c"
+		pexec "./bootstrapped_c ../syntaxes/meta_to_ruby_minimal.meta compile_to_ruby.c"
 		puts "3. Build the stepping stone ruby compiler we created from the meta description"
 		pexec "gcc -o meta_r compile_to_ruby.c"
 		puts "4. Now use the generated stepping stone compiler to generate a ruby compiler for the ruby meta syntax"
-		pexec "./meta_r meta_to_ruby_minimal.meta meta_ruby_compiler_from_c.rb"
+		pexec "./meta_r ../syntaxes/meta_to_ruby_minimal.meta meta_ruby_compiler_from_c.rb"
 		puts "5. Run the generated ruby meta compiler to a ruby version"
-		pexec "ruby -I. meta_ruby_compiler_from_c.rb meta_to_ruby_minimal.meta > meta_ruby_compiler.rb"
+		pexec "ruby -I. meta_ruby_compiler_from_c.rb ../syntaxes/meta_to_ruby_minimal.meta > meta_ruby_compiler.rb"
 		puts "6. Ruby version differ since it has single instead of double quotes around strings"
 		#pexec "diff meta_ruby_compiler_from_c.rb meta_ruby_compiler.rb"
 		puts "7. But we can generate again and ensure it is a meta compiler"
-		pexec "ruby -I. meta_ruby_compiler.rb meta_to_ruby_minimal.meta > meta_ruby_compiler2.rb"
+		pexec "ruby -I. meta_ruby_compiler.rb ../syntaxes/meta_to_ruby_minimal.meta > meta_ruby_compiler2.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler2.rb"
 		puts "8. One more round just to show off... :)"
-		pexec "ruby -I. meta_ruby_compiler2.rb meta_to_ruby_minimal.meta > meta_ruby_compiler3.rb"
+		pexec "ruby -I. meta_ruby_compiler2.rb ../syntaxes/meta_to_ruby_minimal.meta > meta_ruby_compiler3.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler3.rb"
-		puts "Summary:\nCreated a #{loc('meta_ruby_compiler.rb')} line meta-II meta compiler from a #{loc('meta_to_ruby_minimal.meta')} line meta-II spec\n\n"
+		puts "Summary:\nCreated a #{loc('meta_ruby_compiler.rb')} line meta-II meta compiler from a #{loc('../syntaxes/meta_to_ruby_minimal.meta')} line meta-II spec\n\n"
 	end
 end
 
@@ -89,13 +89,13 @@ end
 
 desc "Ensure it is a meta compiler"
 task :ensure_meta => [:make_bin] do
-  ensure_is_meta "bin/meta_compile", "bootstrap/meta_to_ruby_minimal.meta"
+  ensure_is_meta "bin/meta_compile", "syntaxes/meta_to_ruby_minimal.meta"
 end
 
 desc "Update line counts in README.template.md to make README.md"
 task :update_readme => [:bootstrap] do
 	rmeta2_compiler_loc = loc('bootstrap/meta_ruby_compiler.rb')
-	rmeta2_spec_loc = loc('bootstrap/meta_to_ruby_minimal.meta')
+	rmeta2_spec_loc = loc('syntaxes/meta_to_ruby_minimal.meta')
 	readme = File.read("README.template.md").gsub("%%RMetaII_SPEC_LOC%%", rmeta2_spec_loc.to_s)
 	readme = readme.gsub("%%RMetaII_COMPILER_LOC%%", rmeta2_compiler_loc.to_s)
 	File.open("README.md", "w") {|f| f.puts readme}
