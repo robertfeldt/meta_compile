@@ -51,9 +51,9 @@ end
 require 'fileutils'
 
 task :make_bin => [:bootstrap_ruby] do
-	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compiler"
-	FileUtils.chmod 0755, "bin/meta_compiler"
-	puts "Created binary in bin/meta_compiler"
+	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compile"
+	FileUtils.chmod 0755, "bin/meta_compile"
+	puts "Created binary in bin/meta_compile"
 end
 
 task :default => :make_bin
