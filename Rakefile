@@ -19,6 +19,11 @@ task :bootstrap_c do
 	pexec "diff meta_compiler_from_boostrapped_c.c meta_compiler.c"
 end
 
+# Non-empty Lines of Code calc
+def loc(filename)
+	File.readlines(filename).map {|l| l.strip.length==0?nil:l}.compact.length
+end
+
 task :bootstrap_ruby do
 	Dir.chdir("bootstrap") do
 		puts "1. Build bootstrap compiler"
@@ -39,6 +44,7 @@ task :bootstrap_ruby do
 		puts "8. One more round just to show off... :)"
 		pexec "ruby -I. meta_ruby_compiler2.rb meta_for_ruby.txt meta_ruby_compiler3.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler3.rb"
+		puts "Summary:\nCreated a #{loc('meta_ruby_compiler.rb')} line meta-II meta compiler from a #{loc('meta_for_ruby.txt')} line meta-II spec\n\n"
 	end
 end
 

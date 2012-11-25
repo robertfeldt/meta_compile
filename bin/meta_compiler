@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require "strscan"
-class MetaRuby
+class RMetaII
 def compile(str, out)
 @i, @o = StringScanner.new(str), out
 compile_program
@@ -31,10 +31,10 @@ begin
 compile_arg
 end while @f
 @f = true
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @i.scan /\s*/; s='>'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print '@o.print "\n"'
 @o.print "\n"
 end
@@ -76,10 +76,10 @@ break if @f
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
 if @f
 compile_exp1
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @i.scan /\s*/; s=')'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 end
 break if @f
 @i.scan /\s*/; s='.e'
@@ -95,7 +95,7 @@ if @f
 @o.print 'begin'
 @o.print "\n"
 compile_exp3
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end while @f'
 @o.print "\n"
 @o.print '@f = true'
@@ -123,7 +123,7 @@ begin
 begin
 compile_exp3
 if @f
-@o.print 'raise("error at token: " + @i.rest) unless @f'
+@o.print 'raise("error at: " + @i.rest.split("\n")[0]) if !@f'
 @o.print "\n"
 end
 break if @f
@@ -133,7 +133,7 @@ end
 end while false
 end while @f
 @f = true
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end'
 @o.print "\n"
 end
@@ -145,7 +145,7 @@ begin
 @o.print "\n"
 if true
 compile_exp2
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 begin
 begin
 @i.scan /\s*/; s='|'
@@ -154,12 +154,12 @@ if @f
 @o.print 'break if @f'
 @o.print "\n"
 compile_exp2
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 end
 end while false
 end while @f
 @f = true
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end while false'
 @o.print "\n"
 end
@@ -174,12 +174,12 @@ if @f
 @o.print "\n"
 @i.scan /\s*/; s='='
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 compile_exp1
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @i.scan /\s*/; s=';'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end'
 @o.print "\n"
 end
@@ -191,7 +191,7 @@ begin
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
 if @f
 @i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print '#!/usr/bin/env ruby'
 @o.print "\n"
 @o.print 'require "strscan"'
@@ -211,19 +211,19 @@ begin
 compile_stat
 end while @f
 @f = true
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @i.scan /\s*/; s='.end'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
-raise("error at token: " + @i.rest) unless @f
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end'
 @o.print "\n"
 @o.print 'puts "Usage: meta_compiler <input> <output>" unless ARGV.length == 2'
 @o.print "\n"
-@o.print 'File.open(ARGV[1], "w") {|f| MetaRuby.new.compile(File.read(ARGV[0]), f)}'
+@o.print 'File.open(ARGV[1], "w") {|f| RMetaII.new.compile(File.read(ARGV[0]), f)}'
 @o.print "\n"
 end
 end while false
 end
 end
 puts "Usage: meta_compiler <input> <output>" unless ARGV.length == 2
-File.open(ARGV[1], "w") {|f| MetaRuby.new.compile(File.read(ARGV[0]), f)}
+File.open(ARGV[1], "w") {|f| RMetaII.new.compile(File.read(ARGV[0]), f)}
