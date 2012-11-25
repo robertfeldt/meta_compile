@@ -53,17 +53,28 @@ task :bootstrap do
 	end
 end
 
-desc "Make binary from the bootstrapped ruby meta-II compiler"
-task :make_bin => [:bootstrap] do
-	# First ensure it is a meta compiler
-	puts "Ensure it is a meta-compiler"
-	pexec "ruby bootstrap/meta_ruby_compiler.rb bootstrap/meta_for_ruby.txt t.rb"
-	if File.read("t.rb") != File.read("bootstrap/meta_ruby_compiler.rb")
-		puts "ERROR: bootstrap/meta_ruby_compiler.rb is NOT a meta compiler"
+def diff_files(f1, f2)
+	File.read(f1) != File.read(f2)
+end
+
+def ensure_is_meta(generatedFile, specFile)
+	pexec "ruby #{generatedFile} #{specFile} t.rb"
+	pexec "ruby t.rb #{specFile} t2.rb"
+	if diff_files("t.rb", "t2.rb")
+		puts "ERROR: #{generatedFile} is NOT a meta compiler"
 		exit(-1)
 	else
-		puts "YES it is meta!!!"
+		puts "YES #{generatedFile} is meta!!!"
 	end
+end
+
+desc "Ensure it is a meta compiler"
+task :ensure_meta => [:bootstrap] do
+  ensure_is_meta "bin/meta_compile", "bootstrap/meta_for_ruby.txt"
+end
+
+desc "Make binary from the bootstrapped ruby meta-II compiler"
+task :make_bin => [:ensure_meta] do
 	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compile"
 	FileUtils.chmod 0755, "bin/meta_compile"
 	puts "Created binary in bin/meta_compile"
