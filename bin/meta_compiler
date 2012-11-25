@@ -1,0 +1,229 @@
+#!/usr/bin/env ruby
+require "strscan"
+class MetaRuby
+def compile(str, out)
+@i, @o = StringScanner.new(str), out
+compile_program
+end
+def compile_arg
+begin
+@i.scan /\s*/; s='$'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+@o.print '@o.print @t'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; @f=@t=@i.scan /\047[^\047]*\047/
+if @f
+@o.print '@o.print '
+@o.print @t
+@o.print "\n"
+end
+end while false
+end
+def compile_output
+begin
+@i.scan /\s*/; s='<'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+begin
+compile_arg
+end while @f
+@f = true
+raise("error at token: " + @i.rest) unless @f
+@i.scan /\s*/; s='>'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+raise("error at token: " + @i.rest) unless @f
+@o.print '@o.print "\n"'
+@o.print "\n"
+end
+end while false
+end
+def compile_exp3
+begin
+@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/
+if @f
+@o.print 'compile_'
+@o.print @t
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; @f=@t=@i.scan /\047[^\047]*\047/
+if @f
+@o.print '@i.scan /\s*/; s='
+@o.print @t
+@o.print "\n"
+@o.print '@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='.id'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+@o.print '@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='.string'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+@o.print '@i.scan /\s*/; @f=@t=@i.scan /\047[^\047]*\047/'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='('
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+compile_exp1
+raise("error at token: " + @i.rest) unless @f
+@i.scan /\s*/; s=')'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+raise("error at token: " + @i.rest) unless @f
+end
+break if @f
+@i.scan /\s*/; s='.e'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+@o.print '@f = true'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='*'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+@o.print 'begin'
+@o.print "\n"
+compile_exp3
+raise("error at token: " + @i.rest) unless @f
+@o.print 'end while @f'
+@o.print "\n"
+@o.print '@f = true'
+@o.print "\n"
+end
+end while false
+end
+def compile_exp2
+begin
+begin
+compile_exp3
+if @f
+@o.print 'if @f'
+@o.print "\n"
+end
+break if @f
+compile_output
+if @f
+@o.print 'if true'
+@o.print "\n"
+end
+end while false
+if @f
+begin
+begin
+compile_exp3
+if @f
+@o.print 'raise("error at token: " + @i.rest) unless @f'
+@o.print "\n"
+end
+break if @f
+compile_output
+if @f
+end
+end while false
+end while @f
+@f = true
+raise("error at token: " + @i.rest) unless @f
+@o.print 'end'
+@o.print "\n"
+end
+end while false
+end
+def compile_exp1
+begin
+@o.print 'begin'
+@o.print "\n"
+if true
+compile_exp2
+raise("error at token: " + @i.rest) unless @f
+begin
+begin
+@i.scan /\s*/; s='|'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+@o.print 'break if @f'
+@o.print "\n"
+compile_exp2
+raise("error at token: " + @i.rest) unless @f
+end
+end while false
+end while @f
+@f = true
+raise("error at token: " + @i.rest) unless @f
+@o.print 'end while false'
+@o.print "\n"
+end
+end while false
+end
+def compile_stat
+begin
+@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/
+if @f
+@o.print 'def compile_'
+@o.print @t
+@o.print "\n"
+@i.scan /\s*/; s='='
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+raise("error at token: " + @i.rest) unless @f
+compile_exp1
+raise("error at token: " + @i.rest) unless @f
+@i.scan /\s*/; s=';'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+raise("error at token: " + @i.rest) unless @f
+@o.print 'end'
+@o.print "\n"
+end
+end while false
+end
+def compile_program
+begin
+@i.scan /\s*/; s='.syntax'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+if @f
+@i.scan /\s*/; @f=@t=@i.scan /[A-Za-z0-9]+/
+raise("error at token: " + @i.rest) unless @f
+@o.print '#!/usr/bin/env ruby'
+@o.print "\n"
+@o.print 'require "strscan"'
+@o.print "\n"
+@o.print 'class '
+@o.print @t
+@o.print "\n"
+@o.print 'def compile(str, out)'
+@o.print "\n"
+@o.print '@i, @o = StringScanner.new(str), out'
+@o.print "\n"
+@o.print 'compile_program'
+@o.print "\n"
+@o.print 'end'
+@o.print "\n"
+begin
+compile_stat
+end while @f
+@f = true
+raise("error at token: " + @i.rest) unless @f
+@i.scan /\s*/; s='.end'
+@f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
+raise("error at token: " + @i.rest) unless @f
+@o.print 'end'
+@o.print "\n"
+@o.print 'puts "Usage: meta_compiler <input> <output>" unless ARGV.length == 2'
+@o.print "\n"
+@o.print 'File.open(ARGV[1], "w") {|f| MetaRuby.new.compile(File.read(ARGV[0]), f)}'
+@o.print "\n"
+end
+end while false
+end
+end
+puts "Usage: meta_compiler <input> <output>" unless ARGV.length == 2
+File.open(ARGV[1], "w") {|f| MetaRuby.new.compile(File.read(ARGV[0]), f)}

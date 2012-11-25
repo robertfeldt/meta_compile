@@ -16,7 +16,7 @@ exp3 = .id <'compile_' $>
 
 exp2 = ( exp3 <'if @f'>
        | output <'if true'> )
-       *( exp3 <'raise("error in pos " + @i.pos) unless @f'>
+       *( exp3 <'raise("error at token: " + @i.rest) unless @f'>
         | output )
        <'end'>;
 
@@ -27,11 +27,12 @@ exp1 = <'begin'> exp2
 stat = .id <'def compile_' $> '=' exp1 ';' <'end'>;
 
 program = '.syntax' .id 
-  <'require "strscan"'>
+  <'#!/usr/bin/env ruby'> <'require "strscan"'>
   <'class ' $> <'def compile(str, out)'>
   <'@i, @o = StringScanner.new(str), out'>
   <'compile_program'> <'end'>
   *stat '.end' <'end'>
+  <'puts "Usage: meta_compiler <input> <output>" unless ARGV.length == 2'>
   <'File.open(ARGV[1], "w") {|f| MetaRuby.new.compile(File.read(ARGV[0]), f)}'>;
 
 .end
