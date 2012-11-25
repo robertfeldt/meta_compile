@@ -22,7 +22,7 @@ if @f
 end
 end while false
 end
-def compile_output
+def compile_out
 begin
 @i.scan /\s*/; s='<'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
@@ -112,7 +112,7 @@ if @f
 @o.print "\n"
 end
 break if @f
-compile_output
+compile_out
 if @f
 @o.print 'if true'
 @o.print "\n"
@@ -127,7 +127,7 @@ if @f
 @o.print "\n"
 end
 break if @f
-compile_output
+compile_out
 if @f
 end
 end while false
