@@ -1,9 +1,9 @@
 .syntax RMetaII
 
-arg = '$'     <'@o.print @t'>
-    | .string <'@o.print ' $>;
+outarg = '$'     <'@o.print @t'>
+       | .string <'@o.print ' $>;
 
-out = '<' *arg '>' <'@o.print "\n"'>;
+out = '<' *outarg '>' <'@o.print "\n"'>;
 
 exp3 = .id       <'compile_' $>
      | .string   <'@i.scan /\s*/; s=' $>

@@ -5,7 +5,7 @@ def compile(str, out)
 @i, @o = StringScanner.new(str), out
 compile_program
 end
-def compile_arg
+def compile_outarg
 begin
 @i.scan /\s*/; s='$'
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
@@ -28,7 +28,7 @@ begin
 @f = (@i.peek(s.length) == s) ? (@t=s; @i.pos += s.length) : nil
 if @f
 begin
-compile_arg
+compile_outarg
 end while @f
 @f = true
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
