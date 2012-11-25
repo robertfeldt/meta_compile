@@ -34,3 +34,7 @@ This generates a t.rb which is itself a compiler for meta syntax specs. So lets 
 And ensure they are really the same:
 
         diff t.rb t2.rb
+
+Limitations
+-----------
++ Very bad/little error handling
