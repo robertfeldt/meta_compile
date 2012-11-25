@@ -60,7 +60,9 @@ end
 def ensure_is_meta(generatedFile, specFile)
 	pexec "ruby #{generatedFile} #{specFile} t.rb"
 	pexec "ruby t.rb #{specFile} t2.rb"
-	if diff_files("t.rb", "t2.rb")
+	# Obviously we should now be able to go on and one... :)
+	pexec "ruby t2.rb #{specFile} t3.rb"
+	if diff_files("t.rb", "t2.rb") || diff_files("t2.rb", "t3.rb")
 		puts "ERROR: #{generatedFile} is NOT a meta compiler"
 		exit(-1)
 	else
