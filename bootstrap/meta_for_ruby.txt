@@ -1,0 +1,53 @@
+.syntax MetaRubyCompiler
+
+arg = '$' <'@o.print escape(@t)'>
+    | .string <'@o.print ' $>;
+
+output = '<' *arg '>' <'@o.print "\n"'>;
+
+exp3 = .id <'compile_' $>
+     | .string <'read_literal ' $>
+     | '.id' <'read_id'>
+     | '.string' <'read_string'>
+     | '(' exp1 ')'
+     | '.e' <'@f = true'>
+     | '*' <'begin'>
+       exp3 <'end while @f'>
+       <'@f = true'>;
+
+exp2 = ( exp3 <'if @f'>
+       | output <'if true'> )
+       *( exp3 <'raise "error" unless @f'>
+        | output )
+       <'end'>;
+
+exp1 = <'begin'> exp2
+       *( '|' <'break if @f'> exp2 )
+       <'end while false'>;
+
+stat = .id <'def compile_' $> '=' exp1 ';' <'end'>;
+
+program = '.syntax' .id 
+  <'require "strscan"'>
+  <'class ' $> 
+  <'  def self.compile(str, out, id = "program")'>
+  <'    @i, @o = StringScanner.new str, out'>
+  <'    send ("compile_" + id).to_sym'>
+  <'  end'>
+  <'  def escape str'>
+  <'    str.gsub("\"", "\\\"")'>
+  <'  end'>
+  <'  def read_literal s'>
+  <'    @i.scan /\s*/; '>
+  <'    @f = (@i.peek(s.length) == s) ? (@t = s; @i.pos += s.length; true) : false;'>
+  <'  end'>
+  <'  def read_id'>
+  <'    @i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9]*/'>
+  <'  end'>
+  <'  def read_string'>
+  <'    @i.scan /\s*/; @f = @t = @i.scan /'[^']*'/;'>
+  <'  end'>
+  *stat '.end'
+  <'end'>
+  <'File.open(ARGV[1], "w") {|f| MetaRubyCompiler.compile(File.read(ARGV[0]), f, "program")}'>;
+.end
