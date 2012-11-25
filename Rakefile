@@ -82,7 +82,8 @@ task :default => :make_bin
 
 desc "Build the gem"
 task :build_gem => [:make_bin] do
-	pexec "rm *.gem"
+	Rake::Task["clean"].invoke
+	FileUtils.rm_f Dir.glob("meta_compile-*.gem")
 	pexec "gem build meta_compile.gemspec"
 end
 
