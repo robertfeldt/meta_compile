@@ -1,0 +1,35 @@
+.syntax RMetaII
+
+outarg = '$' <'@o.print @t'> | .string <'@o.print ' $>;
+
+out = '<' *outarg '>' <'@o.print "\n"'>;
+
+exp3 = .id       <'compile_' $>
+     | .string   <'@i.scan /\s*/; s=' $ '; l=s.length;'>
+                 <'@t = (@i.peek(l) == s) ? (@i.pos += l; s) : nil'>
+     | '.id'     <'@i.scan /\s*/; @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/'>
+     | '.string' <'@i.scan /\s*/; @t = @i.scan /\047[^\047]*\047/'>
+     | '(' exp1 ')'
+     | '.e'      <'@t = true'>
+     | '*' <'begin'> exp3 <'end while @t'> <'@t = true'>;
+
+exp2 =  ( exp3 <'if @t'> | out <'if true'> )
+       *(   exp3 <'raise("error at:\n" + @i.rest.split("\n")[0]) if !@t'>
+          | out ) <'end'>;
+
+exp1 = <'begin'> exp2
+       *( '|' <'break if @t'> exp2 )
+       <'end while false'>;
+
+rule = .id <'def compile_' $> '=' exp1 ';' <'end'>;
+
+program = '.syntax' .id 
+  <'#!/usr/bin/env ruby'> <'require "strscan"'>
+  <'class ' $> <'def compile(str, out)'>
+  <'@i, @o = StringScanner.new(str), out'>
+  <'compile_program'> <'end'>
+  *rule '.end' <'end'>
+  <'begin; puts("Use: " + $0 + " <in> <out>"); exit; end if ARGV.length != 2'>
+  <'File.open(ARGV[1], "w") {|f| RMetaII.new.compile(File.read(ARGV[0]), f)}'>;
+
+.end
