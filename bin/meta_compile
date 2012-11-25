@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require "strscan"
-class Cprogram
+class C_program
 $c = self
 def compile(str, out)
 @i, @o = StringScanner.new(str), out
@@ -198,7 +198,7 @@ raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print "\n"
 @o.print 'require "strscan"'
 @o.print "\n"
-@o.print 'class C'
+@o.print 'class C_'
 @o.print @t
 @o.print "\n"
 @o.print '$c = self'
