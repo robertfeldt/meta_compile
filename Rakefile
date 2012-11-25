@@ -70,16 +70,16 @@ def ensure_is_meta(generatedFile, specFile)
 	end
 end
 
-desc "Ensure it is a meta compiler"
-task :ensure_meta => [:bootstrap] do
-  ensure_is_meta "bin/meta_compile", "bootstrap/meta_for_ruby.txt"
-end
-
 desc "Make binary from the bootstrapped ruby meta-II compiler"
-task :make_bin => [:ensure_meta] do
+task :make_bin => [:bootstrap] do
 	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compile"
 	FileUtils.chmod 0755, "bin/meta_compile"
 	puts "Created binary in bin/meta_compile"
+end
+
+desc "Ensure it is a meta compiler"
+task :ensure_meta => [:make_bin] do
+  ensure_is_meta "bin/meta_compile", "bootstrap/meta_for_ruby.txt"
 end
 
 desc "Update line counts in README.template.md to make README.md"
@@ -91,7 +91,7 @@ task :update_readme => [:bootstrap] do
 	File.open("README.md", "w") {|f| f.puts readme}
 end
 
-task :default => :make_bin
+task :default => :ensure_meta
 
 desc "Build the gem"
 task :build_gem => [:make_bin] do

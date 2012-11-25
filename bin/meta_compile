@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require "strscan"
-class RMetaII
+class Cprogram
+$c = self
 def compile(str, out)
 @i, @o = StringScanner.new(str), out
 compile_program
@@ -197,14 +198,17 @@ raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print "\n"
 @o.print 'require "strscan"'
 @o.print "\n"
-@o.print 'class '
+@o.print 'class C'
 @o.print @t
+@o.print "\n"
+@o.print '$c = self'
 @o.print "\n"
 @o.print 'def compile(str, out)'
 @o.print "\n"
 @o.print '@i, @o = StringScanner.new(str), out'
 @o.print "\n"
-@o.print 'compile_program'
+@o.print 'compile_'
+@o.print @t
 @o.print "\n"
 @o.print 'end'
 @o.print "\n"
@@ -220,11 +224,11 @@ raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print "\n"
 @o.print 'begin; puts("Use: " + $0 + " <in> <out>"); exit; end if ARGV.length != 2'
 @o.print "\n"
-@o.print 'File.open(ARGV[1], "w") {|f| RMetaII.new.compile(File.read(ARGV[0]), f)}'
+@o.print 'File.open(ARGV[1], "w") {|f| $c.new.compile(File.read(ARGV[0]), f)}'
 @o.print "\n"
 end
 end while false
 end
 end
 begin; puts("Use: " + $0 + " <in> <out>"); exit; end if ARGV.length != 2
-File.open(ARGV[1], "w") {|f| RMetaII.new.compile(File.read(ARGV[0]), f)}
+File.open(ARGV[1], "w") {|f| $c.new.compile(File.read(ARGV[0]), f)}

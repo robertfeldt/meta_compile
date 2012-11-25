@@ -1,4 +1,4 @@
-.syntax RMetaII
+.syntax program
 
 outarg = '$' <'@o.print @t'> | .string <'@o.print ' $>;
 
@@ -24,12 +24,12 @@ exp1 = <'begin'> exp2
 rule = .id <'def compile_' $> '=' exp1 ';' <'end'>;
 
 program = '.syntax' .id 
-  <'#!/usr/bin/env ruby'> <'require "strscan"'>
-  <'class ' $> <'def compile(str, out)'>
+  <'#!/usr/bin/env ruby'> <'require "strscan"'> 
+  <'class C' $> <'$c = self'> <'def compile(str, out)'>
   <'@i, @o = StringScanner.new(str), out'>
-  <'compile_program'> <'end'>
+  <'compile_' $> <'end'>
   *rule '.end' <'end'>
   <'begin; puts("Use: " + $0 + " <in> <out>"); exit; end if ARGV.length != 2'>
-  <'File.open(ARGV[1], "w") {|f| RMetaII.new.compile(File.read(ARGV[0]), f)}'>;
+  <'File.open(ARGV[1], "w") {|f| $c.new.compile(File.read(ARGV[0]), f)}'>;
 
 .end
