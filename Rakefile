@@ -55,6 +55,15 @@ end
 
 desc "Make binary from the bootstrapped ruby meta-II compiler"
 task :make_bin => [:bootstrap] do
+	# First ensure it is a meta compiler
+	puts "Ensure it is a meta-compiler"
+	pexec "ruby bootstrap/meta_ruby_compiler.rb bootstrap/meta_for_ruby.txt t.rb"
+	if File.read("t.rb") != File.read("bootstrap/meta_ruby_compiler.rb")
+		puts "ERROR: bootstrap/meta_ruby_compiler.rb is NOT a meta compiler"
+		exit(-1)
+	else
+		puts "YES it is meta!!!"
+	end
 	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compile"
 	FileUtils.chmod 0755, "bin/meta_compile"
 	puts "Created binary in bin/meta_compile"
@@ -71,9 +80,25 @@ end
 
 task :default => :make_bin
 
+desc "Build the gem"
+task :build_gem => [:make_bin] do
+	pexec "rm *.gem"
+	pexec "gem build meta_compile.gemspec"
+end
+
+desc "Build and install gem"
+task :install_gem => [:build_gem] do
+	pexec "sudo gem install meta_compile*.gem"
+end
+
+desc "Deploy gem"
+task :deploy => [:install_gem] do
+	pexec "gem push meta_compile*.gem"
+end
+
 task :clean do
 	Dir.chdir("bootstrap") do
-	  pexec "rm -rf bootstrapped_c meta_compiler_from_boostrapped_c.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler3.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r"
+	  pexec "rm -rf bootstrapped_c meta_compiler_from_boostrapped_c.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler3.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r t.rb"
   end
 end
 
