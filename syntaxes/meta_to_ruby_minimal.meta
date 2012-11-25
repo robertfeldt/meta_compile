@@ -29,6 +29,6 @@ program = '.syntax' .id
   <'@i, @o = StringScanner.new(str), out'>
   <'compile_' $> <'end'>
   *rule '.end' <'end'>
-  <'$c.new.compile(File.read(ARGV[0]), STDOUT) if __FILE__ == $0'>;
+  <'$c.new.compile(File.read(ARGV[0]), STDOUT)'>;
 
 .end

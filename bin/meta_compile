@@ -222,10 +222,10 @@ raise("error at: " + @i.rest.split("\n")[0]) if !@f
 raise("error at: " + @i.rest.split("\n")[0]) if !@f
 @o.print 'end'
 @o.print "\n"
-@o.print '$c.new.compile(File.read(ARGV[0]), STDOUT) if __FILE__ == $0'
+@o.print '$c.new.compile(File.read(ARGV[0]), STDOUT)'
 @o.print "\n"
 end
 end while false
 end
 end
-$c.new.compile(File.read(ARGV[0]), STDOUT) if __FILE__ == $0
+$c.new.compile(File.read(ARGV[0]), STDOUT)
