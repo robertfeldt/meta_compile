@@ -35,6 +35,9 @@ task :bootstrap_ruby do
 		puts "7. But we can generate again and ensure it is a meta compiler"
 		pexec "ruby -I. meta_ruby_compiler.rb meta_for_ruby.txt meta_ruby_compiler2.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler2.rb"
+		puts "8. One more round just to show off... :)"
+		pexec "ruby -I. meta_ruby_compiler2.rb meta_for_ruby.txt meta_ruby_compiler3.rb"
+		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler3.rb"
 	end
 end
 
@@ -42,7 +45,7 @@ task :default => :bootstrap_ruby
 
 task :clean do
 	Dir.chdir("bootstrap") do
-	  pexec "rm -rf bootstrap_compiler meta_compiler_generated_by_bootstrap_compiler.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r"
+	  pexec "rm -rf bootstrap_compiler meta_compiler_generated_by_bootstrap_compiler.c meta_compiler.c meta_ruby_compiler2.rb meta_ruby_compiler3.rb meta_ruby_compiler_from_c.rb compile_syntax_c_to_ruby.c meta_c meta_r"
   end
 end
 
