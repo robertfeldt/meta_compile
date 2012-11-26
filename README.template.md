@@ -70,8 +70,8 @@ Then we create a compiler for the assignments syntax:
 
 We now have a compiler for assignments and if we apply it [to the file](https://raw.github.com/robertfeldt/meta_compile/master/inputs/assignments.input1):
 
-        a := 13;
-        b := 45;
+        a := 137;
+        b := 4;
 
 by running the command:
 
@@ -80,7 +80,7 @@ by running the command:
 it prints:
 
         address a
-        literal 13
+        literal 137
         store
         address d
         literal 4

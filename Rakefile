@@ -106,16 +106,16 @@ task :bootstrap_re do
 end
 
 def run_example(compiler, example)
-	puts "Compiling this input with #{compiler}:"
+	puts "Compiling this input with #{compiler}:\n\n"
 	puts File.read(example)
-	puts " gives output:"
+	puts "\ngives output:\n\n"
 	pexec "ruby #{compiler} #{example}"
 end
 
 def metacomp_re_run_examples(syntaxFile, *inputs)
 	pexec "ruby bin/metacomp_re #{syntaxFile} > tas.rb"
 	inputs.each do |i|
-	  pexec run_example("tas.rb", "inputs/#{i}")
+	  run_example("tas.rb", "inputs/#{i}")
 	end
 end
 
