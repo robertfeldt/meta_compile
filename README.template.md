@@ -60,10 +60,13 @@ Let's use this to compile programs which can only contain assignments of numbers
         ex1 = /\d+/ <'literal ' $>;
         .end
 
-First we create a compiler for this syntax:
+The new thing here compared to the original Meta-II syntax is the two Regexp's (in as and ex1). First we need to bootstrap the meta compiler that accepts regexps:
 
-        rake bootstrap_re # Use my extended meta syntax to create a new compiler that accepts regexps
-        ruby bin/metacomp_re syntaxes/assignments.meta > tas.rb # Use new compiler to compile the assingment syntax
+        rake bootstrap_re
+
+Then we create a compiler for the assignments syntax:
+
+        ruby bin/metacomp_re syntaxes/assignments.meta > tas.rb
 
 We now have a compiler for assignments and if we apply it [to the file](https://raw.github.com/robertfeldt/meta_compile/master/inputs/assignments.input1):
 
@@ -82,3 +85,5 @@ it prints:
         address d
         literal 4
         store
+
+Not bad. :)
