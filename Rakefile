@@ -92,6 +92,19 @@ task :ensure_meta => [:make_bin] do
   ensure_is_meta "bin/meta_compile", "syntaxes/meta_to_ruby_minimal.meta"
 end
 
+def bootstrap_with_stepping_stone(syntaxFile, target)
+	syntaxf    = File.join("syntaxes", syntaxFile)
+	stepstonef = File.join("syntaxes", "stepping_stone_" + syntaxFile)
+	pexec "meta_compile #{stepstonef} > tgen_stepstone.rb"
+	pexec "ruby tgen_stepstone.rb #{syntaxf} > #{target}"
+	ensure_is_meta(target, syntaxf)
+end
+
+desc "Bootstrap the meta compiler that accepts regexps"
+task :bootstrap_re do
+	bootstrap_with_stepping_stone("meta_to_ruby_minimal_with_regexps.meta", "bin/metacomp_re")
+end
+
 desc "Update line counts in README.template.md to make README.md"
 task :update => [:bootstrap] do
 	rmeta2_compiler_loc = loc('bootstrap/meta_ruby_compiler.rb')

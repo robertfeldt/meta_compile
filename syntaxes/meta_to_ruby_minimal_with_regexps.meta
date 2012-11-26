@@ -1,0 +1,36 @@
+.syntax program
+
+outarg = '$' <'@o.print @t'> | .string <'@o.print ' $>;
+
+out = '<' *outarg '>' <'@o.print "\n"'>;
+
+exp3 = .id       <'compile_' $>
+     | .string   <'@i.scan /\s*/; s=' $ '; l=s.length;'>
+                 <'@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil'>
+     | .re       <'@i.scan /\s*/; @f = @t = @i.scan ' $>
+     | '.id'     <'@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/'>
+     | '.string' <'@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/'>
+     | '.re'     <'@i.scan /\s*/; @f = @t = @i.scan /\/([^\/]*(\\/)*)*\//'>
+     | '(' exp1 ')'
+     | '.e'      <'@f = true'>
+     | '*' <'begin'> exp3 <'end while @f'> <'@f = true'>;
+
+exp2 =  ( exp3 <'if @f'> | out <'if true'> )
+       *(   exp3 <'raise("error at: " + @i.rest.split("\n")[0]) if !@f'>
+          | out ) <'end'>;
+
+exp1 = <'begin'> exp2
+       *( '|' <'break if @f'> exp2 )
+       <'end while false'>;
+
+rule = .id <'def compile_' $> '=' exp1 ';' <'end'>;
+
+program = '.syntax' .id 
+  <'#!/usr/bin/env ruby'> <'require "strscan"'> 
+  <'class C_' $> <'$c = self'> <'def compile(str, out)'>
+  <'@i, @o = StringScanner.new(str), out'>
+  <'compile_' $> <'end'>
+  *rule '.end' <'end'>
+  <'$c.new.compile(File.read(ARGV[0]), STDOUT)'>;
+
+.end
