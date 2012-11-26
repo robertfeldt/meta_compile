@@ -105,6 +105,25 @@ task :bootstrap_re do
 	bootstrap_with_stepping_stone("meta_to_ruby_minimal_with_regexps.meta", "bin/metacomp_re")
 end
 
+def run_example(compiler, example)
+	puts "Compiling this input with #{compiler}:"
+	puts File.read(example)
+	puts " gives output:"
+	pexec "ruby #{compiler} #{example}"
+end
+
+def metacomp_re_run_examples(syntaxFile, *inputs)
+	pexec "ruby bin/metacomp_re #{syntaxFile} > tas.rb"
+	inputs.each do |i|
+	  pexec run_example("tas.rb", "inputs/#{i}")
+	end
+end
+
+desc "Compile all inputs for the assignments syntax"
+task :ex_ass do
+	metacomp_re_run_examples "syntaxes/assignments.meta", "assignments.input1"
+end
+
 desc "Update line counts in README.template.md to make README.md"
 task :update => [:bootstrap] do
 	rmeta2_compiler_loc = loc('bootstrap/meta_ruby_compiler.rb')

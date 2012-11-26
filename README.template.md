@@ -46,3 +46,39 @@ and this should convince us:
 Limitations
 -----------
 + Very bad/little error handling
+
+Ok, now what?
+-------------
+
+Once the first meta compiler is up and running we can evolve the language. For example I made a change so [Ruby regexps can be used](https://github.com/robertfeldt/meta_compile/blob/master/syntaxes/meta_to_ruby_minimal_with_regexps.meta) instead of only string literals. Note that we need to use a [stepping stone syntax file](https://github.com/robertfeldt/meta_compile/blob/master/syntaxes/stepping_stone_meta_to_ruby_minimal_with_regexps.meta) before we can create a new meta compiler that accepts the new syntax.
+
+Let's use this to compile programs which can only contain assignments of numbers to variables:
+
+        .syntax assignments
+        assignments = as *as;
+        as = /\w+/ <'address ' $> ':=' ex1 <'store'> ';';
+        ex1 = /\d+/ <'literal ' $>;
+        .end
+
+First we create a compiler for this syntax:
+
+        rake bootstrap_re # Use my extended meta syntax to create a new compiler that accepts regexps
+        ruby bin/metacomp_re syntaxes/assignments.meta > tas.rb # Use new compiler to compile the assingment syntax
+
+We now have a compiler for assignments and if we apply it [to the file](https://raw.github.com/robertfeldt/meta_compile/master/inputs/assignments.input1):
+
+        a := 13;
+        b := 45;
+
+by running the command:
+
+        ruby tas.rb inputs/assignments.input1
+
+it prints:
+
+        address a
+        literal 13
+        store
+        address d
+        literal 4
+        store
