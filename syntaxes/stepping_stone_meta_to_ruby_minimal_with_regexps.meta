@@ -9,7 +9,7 @@ exp3 = .id       <'compile_' $>
                  <'@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil'>
      | '.id'     <'@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/'>
      | '.string' <'@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/'>
-     | '.re'     <'@i.scan /\s*/; @f = @t = @i.scan /\/([^\/]*(\\/)*)*\//'>
+     | '.re'     <'@i.scan /\s*/; @f = @t = @i.scan /\/[^\/]*\//'>
      | '(' exp1 ')'
      | '.e'      <'@f = true'>
      | '*' <'begin'> exp3 <'end while @f'> <'@f = true'>;

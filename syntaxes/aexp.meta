@@ -1,7 +1,7 @@
 .syntax aexp
 
 aexp = as *as;
-as = .id <'address' $> ':=' ex1 <'store'> ';';
+as = /\w+/ <'address' $> ':=' ex1 <'store'> ';';
 ex1 = ex2 *(  '+' ex2 <'add'>
             | '-' ex2 <'sub'>);
 ex2 = ex3 *(  '*' ex3 <'mpy'>
@@ -11,6 +11,7 @@ ex4 = '+' ex5
     | '-' ex5 <'minus'>
     | ex5;
 ex5 = .id     <'load' $>
+    | /\d+/   <'literal ' $>
     | '(' ex1 ')';
 
 .end

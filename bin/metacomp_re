@@ -60,7 +60,7 @@ if @f
 @o.print "\n"
 end
 break if @f
-@i.scan /\s*/; @f = @t = @i.scan /\/([^\/]*(\/)*)*\//
+@i.scan /\s*/; @f = @t = @i.scan /\/[^\/]*\//
 if @f
 @o.print '@i.scan /\s*/; @f = @t = @i.scan '
 @o.print @t
@@ -84,7 +84,7 @@ break if @f
 @i.scan /\s*/; s='.re'; l=s.length;
 @f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
 if @f
-@o.print '@i.scan /\s*/; @f = @t = @i.scan /\/([^\/]*(\\/)*)*\//'
+@o.print '@i.scan /\s*/; @f = @t = @i.scan /\/[^\/]*\//'
 @o.print "\n"
 end
 break if @f
