@@ -1,29 +1,40 @@
 .syntax program
 
-outarg = '$'              <'@out.print @token'> 
-       | .string          <'@out.print ' $>;
+outarg = '$'          <'@out.print @t       # Print token on output stream'> 
+       | .string      <'@out.print ' $ '    # Print literal string on output stream'>;
 
-out = '<' *outarg '>'     <'@out.print "\n"'>;
+out = '<' *outarg '>' <'@out.print "\n"     # Print newline on output stream'>;
 
-exp3 = .id                <'compile_' $>
-
-     | .string            <'@in.scan /\s*/'>
-                          <'s=' $>
-                          <'l=s.length'>
-                          <'@flag = (@in.peek(l) == s) ? (@token=s; @in.pos += l) : nil'>
-
-     | '.id'              <'@in.scan /\s*/; @flag = @token = @in.scan /[A-Za-z]+[A-Za-z0-9_]+/'>
-
-     | '.string'          <'@in.scan /\s*/; @flag = @token = @in.scan /\047[^\047]*\047/'>
-
+exp3 = .id            <'compile_' $   '     # Call the method for a rule'>
+     | .string        <'@i.scan /\s*/       # Skip whitespace'>
+                      <'str =' $      '     # Save literal string in var since we access it several times below'>
+                      <'len = str.length    # Length of the string used repeatedly below so save in var'>
+                      <'if @input.peek(len) == str'>
+                      <'  @token = str      # The string was matched => save as last token'>
+                      <'  @input.pos += len # Advance the position in the input string'>
+                      <'  @flag = true      # Indicate a positive match'>
+                      <'else'>
+                      <'  @token = nil      # No matched token'>
+                      <'  @flag = false     # Indicate that match failed'>
+                      <'end'>
+     | '.id'          <'@i.scan /\s*/       # Skip whitespace'>
+                      <'# Try to match a non-terminal in the input string. Result is nil unless matched or'
+                      <'# is the matched string otherwise (so set it as the matched token). Since any object that is not'>
+                      <'# nil or false is considered true in Ruby we can also use the value returned from scan to set'>
+                      <'# the flag indicating a match with that return value.'
+                      <'@flag = @token = @input.scan /[A-Za-z]+[A-Za-z0-9_]+/'>
+     | '.string'      <'@i.scan /\s*/       # Skip whitespace'>
+                      <'# Try to match a string. Set token and flag based on returned match; see above for details.'
+                      <'@flag = @token = @input.scan /\047[^\047]*\047/'>
      | '(' exp1 ')'
-
-     | '.e'               <'@flag = true'>
-
-     | '*' <'begin'> exp3 <'end while @flag'> <'@flag = true'>;
+     | '.e'           <'@flag = true        # .e means empty so always matches => set flag.'>
+     | '*'  <'begin'> 
+              exp3 
+            <'end while @flag               # Loop while the flag indicates a match'> 
+            <'@flag = true                  # Since also zero matches is ok the flag should always be true here.'>;
 
 exp2 =  ( exp3 <'if @flag'> | out <'if true'> )
-       *(   exp3          <'raise("error at: " + @in.rest.split("\n")[0]) if !@flag'>
+       *(   exp3 <'raise("error at: " + @i.rest.split("\n")[0]) if !@flag'>
           | out ) <'end'>;
 
 exp1 = <'begin'> exp2
@@ -33,27 +44,11 @@ exp1 = <'begin'> exp2
 rule = .id <'def compile_' $> '=' exp1 ';' <'end'>;
 
 program = '.syntax' .id 
-  <'#!/usr/bin/env ruby'> 
-  <'require "strscan"'> 
-
-  <'class C_' $> 
-  <'  $c = self # so we can access it below if this is run from command line'> 
-  <'  def compile(str, out)'>
-  <'    @in, @out = StringScanner.new(str), out'>
-  <'    compile_' $> 
-  <'  end'>
-
-    *rule '.end' 
-
-  <'end # end of class'>
-
-  <'if __FILE__ == $0'>
-  <'  if ARGV.length != 1'>
-  <'    puts("usage: " + $0 + " <input>")'>
-  <'    exit -1'>
-  <'  else'>
-  <'    $c.new.compile(File.read(ARGV[0]), STDOUT)'>
-  <'  end'>
-  <'end'>;
+  <'#!/usr/bin/env ruby'> <'require "strscan"'> 
+  <'class C_' $> <'$c = self'> <'def compile(str, out)'>
+  <'@i, @o = StringScanner.new(str), out'>
+  <'compile_' $> <'end'>
+  *rule '.end' <'end'>
+  <'$c.new.compile(File.read(ARGV[0]), STDOUT)'>;
 
 .end
