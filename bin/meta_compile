@@ -26,13 +26,12 @@ class MetaCompiler_program
     @last_matched_token = @match if @match # Update last matched only if a token was matched
   end
   def report_error
-    #pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position
-    #post_lines = @in.rest.split("\n")              # lines of input after current position
-    #message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "
-    #message += post_lines.first.inspect
-    #message += "\n  Last matched token: #{@last_matched_token}"
-    #raise message
-    raise("PARSE ERROR" + @in.inspect)
+    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position
+    post_lines = @in.rest.split("\n")              # lines of input after current position
+    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "
+    message += post_lines.first.inspect
+    message += "\n  Last matched token: #{@last_matched_token}"
+    raise message
   end
   def self.compile_file(inFile, out = nil)
     outfh = (out == nil ? STDOUT : File.open(out, "w"))
@@ -272,19 +271,17 @@ report_error() unless @match
 @out.print "\n"     # Print newline on output stream
 @out.print '  def report_error'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    #pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'    # Print literal string on output stream
+@out.print '    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    #post_lines = @in.rest.split("\n")              # lines of input after current position'    # Print literal string on output stream
+@out.print '    post_lines = @in.rest.split("\n")              # lines of input after current position'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    #message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'    # Print literal string on output stream
+@out.print '    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    #message += post_lines.first.inspect'    # Print literal string on output stream
+@out.print '    message += post_lines.first.inspect'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    #message += "\n  Last matched token: #{@last_matched_token}"'    # Print literal string on output stream
+@out.print '    message += "\n  Last matched token: #{@last_matched_token}"'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    #raise message'    # Print literal string on output stream
-@out.print "\n"     # Print newline on output stream
-@out.print '    raise("PARSE ERROR" + @in.inspect)'    # Print literal string on output stream
+@out.print '    raise message'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
 @out.print '  end'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream

@@ -13,7 +13,7 @@ task :boot_c do
 	Dir.chdir "bootstrap" do
 		puts "1. Build bootstrap compiler"
 		pexec "gcc -o bootstrapped_c bootstrap.c"
-		puts "2. Use the bootstrapped meta compiler to compile the meta_for_c.txt description of itself"
+		puts "2. Use the bootstrapped meta compiler to compile the meta_to_c.meta description of itself"
 		pexec "./bootstrapped_c meta_to_c.meta meta_compiler_from_boostrapped_c.c"
 		puts "3. Build the compiler we created from the meta description"
 		pexec "gcc -o meta_c meta_compiler_from_boostrapped_c.c"
@@ -63,7 +63,7 @@ end
 def bootstrap_from_ruby(syntaxFile, targetName = "tgen.rb")
 	syntaxf    = File.join("syntaxes", syntaxFile)
 	# Assumes the ruby version has been bootstrapped from C and is installed as meta_compile
-	pexec "meta_compile #{syntaxf} > #{targetName}"
+	pexec "ruby bin/meta_compile #{syntaxf} > #{targetName}"
 	ensure_is_meta(targetName, syntaxf, targetName)
 end
 
@@ -102,13 +102,13 @@ end
 def bootstrap_with_stepping_stone(syntaxFile, target)
 	syntaxf    = File.join("syntaxes", syntaxFile)
 	stepstonef = File.join("syntaxes", "stepping_stone_" + syntaxFile)
-	pexec "meta_compile #{stepstonef} > tgen_stepstone.rb"
+	pexec "ruby bin/meta_compile #{stepstonef} > tgen_stepstone.rb"
 	pexec "ruby tgen_stepstone.rb #{syntaxf} > #{target}"
 	ensure_is_meta(target, syntaxf, target)
 end
 
 desc "Bootstrap the Ruby meta compiler (uses the minimal syntax)"
-task :boot => :boot_c do
+task :boot do
 	bootstrap_from_c "meta_to_ruby_minimal.meta"
 end
 
@@ -118,7 +118,7 @@ task :bootstrap => :boot do
 end
 
 desc "Bootstrap the minimal Ruby meta compiler (from the Ruby meta compiler)"
-task :boot_minimal => :boot do
+task :boot_minimal => :bootstrap do
 	bootstrap_from_ruby "meta_to_ruby_minimal.meta", "bin/metac_minimal"
 end
 
@@ -172,7 +172,7 @@ task :ex_ass do
 end
 
 desc "Update line counts in README.template.md to make README.md"
-task :update => [:make_bin_minimal, :make_bin_readable] do
+task :update => [:boot_minimal, :boot_regexp, :boot_readable] do
 	readme = File.read("README.template.md")
 	readme = readme.gsub("%%RMetaII_SPEC_LOC%%", loc('syntaxes/meta_to_ruby_minimal.meta').to_s)
 	readme = readme.gsub("%%RMetaII_COMPILER_LOC%%", loc('bin/metac_minimal').to_s)
@@ -182,7 +182,7 @@ task :update => [:make_bin_minimal, :make_bin_readable] do
 end
 
 desc "Build the gem"
-task :build_gem => [:make_bin_readable] do
+task :build_gem => [:update, :make_bin_readable] do
 	Rake::Task["clean"].invoke
 	FileUtils.rm_f Dir.glob("meta_compile-*.gem")
 	pexec "gem build meta_compile.gemspec"
@@ -194,7 +194,7 @@ task :install_gem => [:build_gem] do
 end
 
 desc "Deploy gem"
-task :deploy => [:update, :install_gem] do
+task :deploy => :build_gem do
 	pexec "gem push meta_compile*.gem"
 end
 

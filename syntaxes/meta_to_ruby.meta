@@ -57,13 +57,12 @@ program = '.syntax' .id
   <'    @last_matched_token = @match if @match # Update last matched only if a token was matched'>
   <'  end'>
   <'  def report_error'>
-  <'    #pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'>
-  <'    #post_lines = @in.rest.split("\n")              # lines of input after current position'>
-  <'    #message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'>
-  <'    #message += post_lines.first.inspect'>
-  <'    #message += "\n  Last matched token: #{@last_matched_token}"'>
-  <'    #raise message'>
-  <'    raise("PARSE ERROR" + @in.inspect)'>
+  <'    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'>
+  <'    post_lines = @in.rest.split("\n")              # lines of input after current position'>
+  <'    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'>
+  <'    message += post_lines.first.inspect'>
+  <'    message += "\n  Last matched token: #{@last_matched_token}"'>
+  <'    raise message'>
   <'  end'>
   <'  def self.compile_file(inFile, out = nil)'>
   <'    outfh = (out == nil ? STDOUT : File.open(out, "w"))'>
