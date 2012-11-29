@@ -91,5 +91,5 @@ Not bad. :)
 FAQ
 ---
 
-Q1. Why did you skip implementing numbers in the minimal compiler?
-A: Since it is so easy to implement with the regexp-capable compiler later. See the example compiler for assignments above, for example.
+## Q1. Why did you skip implementing numbers in the minimal compiler?
+Since it is so easy to implement with the regexp-capable compiler later. See the example compiler for assignments above, for example.
