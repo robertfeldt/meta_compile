@@ -134,7 +134,7 @@ end
 
 desc "Bootstrap the readable meta compiler (from the Ruby meta compiler)"
 task :boot_readable => :make_bin_minimal do
-	bootstrap_from_ruby "meta_to_ruby.meta", "bin/metac_readable"
+	bootstrap_from_ruby "meta_to_ruby_readable.meta", "bin/metac_readable"
 end
 
 desc "Make main gem binary from the readable ruby meta compiler"
@@ -144,7 +144,7 @@ end
 
 desc "Ensure readable ruby meta it is a meta compiler"
 task :ensure_meta_readable => :make_bin_readable do
-  ensure_is_meta "bin/meta_compile", "syntaxes/meta_to_ruby.meta"
+  ensure_is_meta "bin/meta_compile", "syntaxes/meta_to_ruby_readable.meta"
 end
 
 desc "Bootstrap the meta compiler that accepts regexps"
@@ -172,19 +172,18 @@ task :ex_ass do
 end
 
 desc "Update line counts in README.template.md to make README.md"
-task :update => [:boot_minimal, :boot_regexp, :boot_readable] do
+task :update_doc => [:boot_minimal, :boot_regexp, :make_bin_readable] do
 	readme = File.read("README.template.md")
 	readme = readme.gsub("%%RMetaII_SPEC_LOC%%", loc('syntaxes/meta_to_ruby_minimal.meta').to_s)
 	readme = readme.gsub("%%RMetaII_COMPILER_LOC%%", loc('bin/metac_minimal').to_s)
-	readme = readme.gsub("%%RMetaII_READABLE_SPEC_LOC%%", loc('syntaxes/meta_to_ruby.meta').to_s)
+	readme = readme.gsub("%%RMetaII_READABLE_SPEC_LOC%%", loc('syntaxes/meta_to_ruby_readable.meta').to_s)
 	readme = readme.gsub("%%RMetaII_READABLE_COMPILER_LOC%%", loc('bin/metac_readable').to_s)
 	File.open("README.md", "w") {|f| f.puts readme}
 end
 
 desc "Build the gem"
-task :build_gem => [:update, :make_bin_readable] do
-	Rake::Task["clean"].invoke
-	FileUtils.rm_f Dir.glob("meta_compile-*.gem")
+task :build_gem => [:update_doc, :make_bin_readable] do
+	Rake::Task["clobber"].invoke
 	pexec "gem build meta_compile.gemspec"
 end
 
@@ -212,4 +211,4 @@ task :clobber => [:clean] do
   FileUtils.rm_f Dir.glob("meta_compile-*.gem")
 end
 
-task :default => :make_bin_readable
+task :default => :update_doc
