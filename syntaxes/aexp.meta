@@ -4,8 +4,10 @@
 # The top-level aexp (assignment expression) is made up of one or more assignments
 aexp = assignment *assignment;
 
-assignment = /\w+/ <'address ' $> ':=' ex1 <'store'> ';';
+# An assignment is an address assigned the value of an expression
+assignment = address <'address ' $> ':=' ex1 <'store'> ';';
 
+# Expressions are ordered based on precedence of the normal arithmetic operations
 ex1 = ex2 *(  '+' ex2 <'add'>
             | '-' ex2 <'sub'>);
 ex2 = ex3 *(  '*' ex3 <'mpy'>
@@ -14,8 +16,11 @@ ex3 = ex4 *('^' ex3 <'exp'>);
 ex4 = '+' ex5
     | '-' ex5      <'minus'>
     | ex5;
-ex5 = /\w+/        <'load ' $>
+# The base expression is either an address 
+ex5 = address      <'load ' $>
     | /\d+/        <'literal ' $>
     | '(' ex1 ')';
+
+address = /\w+/;
 
 .end
