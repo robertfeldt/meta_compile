@@ -16,7 +16,8 @@ ex3 = ex4 *('^' ex3 <'exp'>);
 ex4 = '+' ex5
     | '-' ex5      <'minus'>
     | ex5;
-# The base expression is either an address 
+
+# The base expression is either an address, a number or a parenthesized expression.
 ex5 = address      <'load ' $>
     | /\d+/        <'literal ' $>
     | '(' ex1 ')';
