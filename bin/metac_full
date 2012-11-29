@@ -1,0 +1,344 @@
+#!/usr/bin/env ruby
+require "strscan"
+class StringScanner
+  # Add scan for string since base StringScanner lack that...
+  def scan_str(string)
+    return nil unless self.peek(string.length) == string
+    self.pos += string.length           # Advance the position in the input string
+    return string
+  end
+  alias :old_scan :scan
+  def scan(strOrRegexp)
+    String === strOrRegexp ? scan_str(strOrRegexp) : old_scan(strOrRegexp)
+  end
+end
+class MetaCompiler_program
+  $compiler_class = self # Save class in global var for later reference below
+  def compile_string(string, outFile)
+    @in, @out = StringScanner.new(string), outFile
+    compile_program # call the main compile method to start compiling
+  end
+  # Scan for a string or regexp and update state based on match. Skips leading whitespace.
+  def scan strOrRegexp
+    @in.scan /(\s*(#.*$)?)*/   # Skip whitespace and comments
+    @match = @in.scan strOrRegexp
+    # Since nil is same as false in Ruby we can set the flag to the matched token
+    @last_matched_token = @match if @match # Update last matched only if a token was matched
+  end
+  def report_error
+    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position
+    post_lines = @in.rest.split("\n")              # lines of input after current position
+    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "
+    message += post_lines.first.inspect
+    message += "\n  Last matched token: #{@last_matched_token}"
+    raise message
+  end
+  def self.compile_file(inFile, out = nil)
+    outfh = (out == nil ? STDOUT : File.open(out, "w"))
+    self.new.compile_string(File.read(inFile), outfh)
+    outfh.close if out == nil
+  end
+def compile_outarg
+begin
+scan '$'
+if @match
+@out.print '@out.print @match   # Print last matched token on output stream'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan /\047[^\047]*\047/
+if @match
+@out.print '@out.print '    # Print literal string on output stream
+@out.print @match   # Print last matched token on output stream
+@out.print '    # Print literal string on output stream'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end
+def compile_out
+begin
+scan '<'
+if @match
+begin
+compile_outarg     # Call the method for a rule
+end while @match              # Loop while there is a match
+@match = true                 # Since also zero matches is ok set flag here.
+report_error() unless @match
+scan '>'
+report_error() unless @match
+@out.print '@out.print "\n"     # Print newline on output stream'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end
+def compile_exp3
+begin
+scan /[A-Za-z]+[A-Za-z0-9_]+/
+if @match
+@out.print 'compile_'    # Print literal string on output stream
+@out.print @match   # Print last matched token on output stream
+@out.print '     # Call the method for a rule'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan /\047[^\047]*\047/
+if @match
+@out.print 'scan '    # Print literal string on output stream
+@out.print @match   # Print last matched token on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan /\/[^\/]*\//
+if @match
+@out.print 'scan '    # Print literal string on output stream
+@out.print @match   # Print last matched token on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan '.id'
+if @match
+@out.print 'scan /[A-Za-z]+[A-Za-z0-9_]+/'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan '.string'
+if @match
+@out.print 'scan /\047[^\047]*\047/'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan '.re'
+if @match
+@out.print 'scan /\/[^\/]*\//'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan '('
+if @match
+compile_exp1     # Call the method for a rule
+report_error() unless @match
+scan ')'
+report_error() unless @match
+end
+break if @match
+scan '.e'
+if @match
+@out.print '@match = true        # .e means empty so always matches => set flag.'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+scan '*'
+if @match
+@out.print 'begin'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+compile_exp3     # Call the method for a rule
+report_error() unless @match
+@out.print 'end while @match              # Loop while there is a match'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '@match = true                 # Since also zero matches is ok set flag here.'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end
+def compile_exp2
+begin
+begin
+compile_exp3     # Call the method for a rule
+if @match
+@out.print 'if @match'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+compile_out     # Call the method for a rule
+if @match
+@out.print 'if true'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+if @match
+begin
+begin
+compile_exp3     # Call the method for a rule
+if @match
+@out.print 'report_error() unless @match'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+break if @match
+compile_out     # Call the method for a rule
+if @match
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end while @match              # Loop while there is a match
+@match = true                 # Since also zero matches is ok set flag here.
+report_error() unless @match
+@out.print 'end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end
+def compile_exp1
+begin
+@out.print 'begin'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+if true
+compile_exp2     # Call the method for a rule
+report_error() unless @match
+begin
+begin
+scan '|'
+if @match
+@out.print 'break if @match'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+compile_exp2     # Call the method for a rule
+report_error() unless @match
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end while @match              # Loop while there is a match
+@match = true                 # Since also zero matches is ok set flag here.
+report_error() unless @match
+@out.print 'end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end
+def compile_rule
+begin
+scan /[A-Za-z]+[A-Za-z0-9_]+/
+if @match
+@out.print 'def compile_'    # Print literal string on output stream
+@out.print @match   # Print last matched token on output stream
+@out.print "\n"     # Print newline on output stream
+scan '='
+report_error() unless @match
+compile_exp1     # Call the method for a rule
+report_error() unless @match
+scan ';'
+report_error() unless @match
+@out.print 'end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end
+def compile_program
+begin
+scan '.syntax'
+if @match
+scan /[A-Za-z]+[A-Za-z0-9_]+/
+report_error() unless @match
+@out.print '#!/usr/bin/env ruby'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print 'require "strscan"'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print 'class StringScanner'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  # Add scan for string since base StringScanner lack that...'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  def scan_str(string)'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    return nil unless self.peek(string.length) == string'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    self.pos += string.length           # Advance the position in the input string'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    return string'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  alias :old_scan :scan'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  def scan(strOrRegexp)'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    String === strOrRegexp ? scan_str(strOrRegexp) : old_scan(strOrRegexp)'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print 'end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print 'class MetaCompiler_'    # Print literal string on output stream
+@out.print @match   # Print last matched token on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  $compiler_class = self # Save class in global var for later reference below'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  def compile_string(string, outFile)'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    @in, @out = StringScanner.new(string), outFile'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    compile_'    # Print literal string on output stream
+@out.print @match   # Print last matched token on output stream
+@out.print ' # call the main compile method to start compiling'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  # Scan for a string or regexp and update state based on match. Skips leading whitespace.'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  def scan strOrRegexp'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    @in.scan /(\s*(#.*$)?)*/   # Skip whitespace and comments'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    @match = @in.scan strOrRegexp'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    # Since nil is same as false in Ruby we can set the flag to the matched token'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    @last_matched_token = @match if @match # Update last matched only if a token was matched'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  def report_error'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    post_lines = @in.rest.split("\n")              # lines of input after current position'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    message += post_lines.first.inspect'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    message += "\n  Last matched token: #{@last_matched_token}"'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    raise message'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  def self.compile_file(inFile, out = nil)'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    outfh = (out == nil ? STDOUT : File.open(out, "w"))'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    self.new.compile_string(File.read(inFile), outfh)'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '    outfh.close if out == nil'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+begin
+compile_rule     # Call the method for a rule
+end while @match              # Loop while there is a match
+@match = true                 # Since also zero matches is ok set flag here.
+report_error() unless @match
+scan '.end'
+report_error() unless @match
+@out.print 'end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print 'if ARGV.length < 1 || ARGV.length > 2'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  puts "ERROR: wrong number of parameters\n\n"'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  puts "Usage: #{File.basename($0)} <input_file> [output_file]"'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  exit(-1)'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print 'else'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print '  $compiler_class.compile_file(ARGV[0], ARGV[1])'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+@out.print 'end'    # Print literal string on output stream
+@out.print "\n"     # Print newline on output stream
+end
+end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
+end
+end
+if ARGV.length < 1 || ARGV.length > 2
+  puts "ERROR: wrong number of parameters\n\n"
+  puts "Usage: #{File.basename($0)} <input_file> [output_file]"
+  exit(-1)
+else
+  $compiler_class.compile_file(ARGV[0], ARGV[1])
+end

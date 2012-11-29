@@ -152,6 +152,11 @@ task :boot_regexp => :make_bin_minimal do
 	bootstrap_with_stepping_stone("meta_to_ruby_minimal_with_regexps.meta", "bin/metac_regexp")
 end
 
+desc "Bootstrap the full meta compiler that accepts regexps and comments"
+task :boot_full => :make_bin_readable do
+	bootstrap_with_stepping_stone("meta_to_ruby.meta", "bin/metac_full")
+end
+
 def run_example(compiler, example)
 	puts "Compiling this input with #{compiler}:\n\n"
 	puts File.read(example)
@@ -159,16 +164,21 @@ def run_example(compiler, example)
 	pexec "ruby #{compiler} #{example}"
 end
 
-def metac_regexp_run_examples(syntaxFile, *inputs)
-	pexec "ruby bin/metac_regexp #{syntaxFile} > tas.rb"
+def metac_x_run_examples(x, syntaxFile, *inputs)
+	pexec "ruby bin/metac_#{x} #{syntaxFile} > tas.rb"
 	inputs.each do |i|
 	  run_example("tas.rb", "inputs/#{i}")
 	end
 end
 
 desc "Compile all inputs for the assignments syntax"
-task :ex_ass do
-	metac_regexp_run_examples "syntaxes/assignments.meta", "assignments.input1"
+task :ex_ass => :boot_regexp do
+	metac_x_run_examples "regexp", "syntaxes/assignments.meta", "assignments.input1"
+end
+
+desc "Compile all inputs for the aexp syntax"
+task :ex_a => :boot_full do
+	metac_x_run_examples "full", "syntaxes/aexp.meta", "aexp.input1"
 end
 
 desc "Update line counts in README.template.md to make README.md"

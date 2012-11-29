@@ -5,6 +5,8 @@ A meta compilation framework for Ruby à la [Meta-II by Val Schorre](http://ibm-
 
 This uses a [C version of Meta-II](https://github.com/impeachgod/meta) developed by Long Nguyen to bootstrap a Ruby version from a [fully self-contained, %%RMetaII_SPEC_LOC%% (non-empty) line specification file](https://raw.github.com/robertfeldt/meta_compile/master/syntaxes/meta_to_ruby_minimal.meta). The [generated Ruby Meta-II compiler file](https://github.com/robertfeldt/meta_compile/blob/master/bin/metac_minimal) is %%RMetaII_COMPILER_LOC%% lines of Ruby code. A more readable and commented version of the specification file [is available here](https://raw.github.com/robertfeldt/meta_compile/master/syntaxes/meta_to_ruby_readable.meta). It also has better error handling both when used from the command line and when compiling (but it is longer, %%RMetaII_READABLE_SPEC_LOC%% loc for the spec and %%RMetaII_READABLE_COMPILER_LOC%% loc for the [generated compiler](https://github.com/robertfeldt/meta_compile/blob/master/bin/metac_readable)).
 
+There is also a more useful meta compiler, based on the readable one, which [accepts regexps and comments in the syntax file](https://raw.github.com/robertfeldt/meta_compile/master/syntaxes/meta_to_ruby.meta).
+
 Install
 -------
 

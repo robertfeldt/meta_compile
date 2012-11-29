@@ -1,17 +1,21 @@
+# This requires the metac_full compiler that accepts both comments and regexps
 .syntax aexp
 
-aexp = as *as;
-as = /\w+/ <'address ' $> ':=' ex1 <'store'> ';';
+# The top-level aexp (assignment expression) is made up of one or more assignments
+aexp = assignment *assignment;
+
+assignment = /\w+/ <'address ' $> ':=' ex1 <'store'> ';';
+
 ex1 = ex2 *(  '+' ex2 <'add'>
             | '-' ex2 <'sub'>);
 ex2 = ex3 *(  '*' ex3 <'mpy'>
             | '/' ex3 <'div'>);
 ex3 = ex4 *('^' ex3 <'exp'>);
 ex4 = '+' ex5
-    | '-' ex5 <'minus'>
+    | '-' ex5      <'minus'>
     | ex5;
-ex5 = .id     <'load' $>
-    | /\d+/   <'literal ' $>
+ex5 = /\w+/        <'load ' $>
+    | /\d+/        <'literal ' $>
     | '(' ex1 ')';
 
 .end
