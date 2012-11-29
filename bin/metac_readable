@@ -12,11 +12,11 @@ class StringScanner
     String === strOrRegexp ? scan_str(strOrRegexp) : old_scan(strOrRegexp)
   end
 end
-class MetaCompiler_MetaCompiler
+class MetaCompiler_program
   $compiler_class = self # Save class in global var for later reference below
   def compile_string(string, outFile)
     @in, @out = StringScanner.new(string), outFile
-    compile_MetaCompiler # call the main compile method to start compiling
+    compile_program # call the main compile method to start compiling
   end
   # Scan for a string or regexp and update state based on match. Skips leading whitespace.
   def scan strOrRegexp
@@ -26,11 +26,11 @@ class MetaCompiler_MetaCompiler
     @last_matched_token = @match if @match # Update last matched only if a token was matched
   end
   def report_error
-    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position
-    post_lines = @in.rest.split("\n")              # lines of input after current position
-    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "
-    message += post_lines.first.inspect
-    message += "\n  Last matched token: #{@last_matched_token}"
+    #pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position
+    #post_lines = @in.rest.split("\n")              # lines of input after current position
+    #message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "
+    #message += post_lines.first.inspect
+    #message += "\n  Last matched token: #{@last_matched_token}"
     #raise message
     raise("PARSE ERROR" + @in.inspect)
   end
@@ -207,7 +207,7 @@ report_error() unless @match
 end
 end while false  # This "while false" is needed since the break is not parsed correctly by Ruby otherwise
 end
-def compile_MetaCompiler
+def compile_program
 begin
 scan '.syntax'
 if @match
@@ -272,15 +272,15 @@ report_error() unless @match
 @out.print "\n"     # Print newline on output stream
 @out.print '  def report_error'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'    # Print literal string on output stream
+@out.print '    #pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    post_lines = @in.rest.split("\n")              # lines of input after current position'    # Print literal string on output stream
+@out.print '    #post_lines = @in.rest.split("\n")              # lines of input after current position'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'    # Print literal string on output stream
+@out.print '    #message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    message += post_lines.first.inspect'    # Print literal string on output stream
+@out.print '    #message += post_lines.first.inspect'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '    message += "\n  Last matched token: #{@last_matched_token}"'    # Print literal string on output stream
+@out.print '    #message += "\n  Last matched token: #{@last_matched_token}"'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
 @out.print '    #raise message'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
@@ -309,9 +309,9 @@ report_error() unless @match
 @out.print "\n"     # Print newline on output stream
 @out.print 'if ARGV.length < 1 || ARGV.length > 2'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '  puts "ERROR: wrong number of parameters"'    # Print literal string on output stream
+@out.print '  puts "ERROR: wrong number of parameters\n\n"'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
-@out.print '  puts "Usage: #{$0} <input_file> [output_file]"'    # Print literal string on output stream
+@out.print '  puts "Usage: #{File.basename($0)} <input_file> [output_file]"'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
 @out.print '  exit(-1)'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
@@ -326,8 +326,8 @@ end while false  # This "while false" is needed since the break is not parsed co
 end
 end
 if ARGV.length < 1 || ARGV.length > 2
-  puts "ERROR: wrong number of parameters"
-  puts "Usage: #{$0} <input_file> [output_file]"
+  puts "ERROR: wrong number of parameters\n\n"
+  puts "Usage: #{File.basename($0)} <input_file> [output_file]"
   exit(-1)
 else
   $compiler_class.compile_file(ARGV[0], ARGV[1])

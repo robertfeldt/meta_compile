@@ -1,0 +1,231 @@
+#!/usr/bin/env ruby
+require "strscan"
+class C_program
+$c = self
+def compile(str, out)
+@i, @o = StringScanner.new(str), out
+compile_program
+end
+def compile_outarg
+begin
+@i.scan /\s*/; s='$'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+@o.print '@o.print @t'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/
+if @f
+@o.print '@o.print '
+@o.print @t
+@o.print "\n"
+end
+end while false
+end
+def compile_out
+begin
+@i.scan /\s*/; s='<'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+begin
+compile_outarg
+end while @f
+@f = true
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@i.scan /\s*/; s='>'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@o.print '@o.print "\n"'
+@o.print "\n"
+end
+end while false
+end
+def compile_exp3
+begin
+@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
+if @f
+@o.print 'compile_'
+@o.print @t
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/
+if @f
+@o.print '@i.scan /\s*/; s='
+@o.print @t
+@o.print '; l=s.length;'
+@o.print "\n"
+@o.print '@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='.id'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+@o.print '@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='.string'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+@o.print '@i.scan /\s*/; @f = @t = @i.scan /\047[^\047]*\047/'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='('; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+compile_exp1
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@i.scan /\s*/; s=')'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+end
+break if @f
+@i.scan /\s*/; s='.e'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+@o.print '@f = true'
+@o.print "\n"
+end
+break if @f
+@i.scan /\s*/; s='*'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+@o.print 'begin'
+@o.print "\n"
+compile_exp3
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@o.print 'end while @f'
+@o.print "\n"
+@o.print '@f = true'
+@o.print "\n"
+end
+end while false
+end
+def compile_exp2
+begin
+begin
+compile_exp3
+if @f
+@o.print 'if @f'
+@o.print "\n"
+end
+break if @f
+compile_out
+if @f
+@o.print 'if true'
+@o.print "\n"
+end
+end while false
+if @f
+begin
+begin
+compile_exp3
+if @f
+@o.print 'raise("error at: " + @i.rest.split("\n")[0]) if !@f'
+@o.print "\n"
+end
+break if @f
+compile_out
+if @f
+end
+end while false
+end while @f
+@f = true
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@o.print 'end'
+@o.print "\n"
+end
+end while false
+end
+def compile_exp1
+begin
+@o.print 'begin'
+@o.print "\n"
+if true
+compile_exp2
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+begin
+begin
+@i.scan /\s*/; s='|'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+@o.print 'break if @f'
+@o.print "\n"
+compile_exp2
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+end
+end while false
+end while @f
+@f = true
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@o.print 'end while false'
+@o.print "\n"
+end
+end while false
+end
+def compile_rule
+begin
+@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
+if @f
+@o.print 'def compile_'
+@o.print @t
+@o.print "\n"
+@i.scan /\s*/; s='='; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+compile_exp1
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@i.scan /\s*/; s=';'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@o.print 'end'
+@o.print "\n"
+end
+end while false
+end
+def compile_program
+begin
+@i.scan /\s*/; s='.syntax'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+if @f
+@i.scan /\s*/; @f = @t = @i.scan /[A-Za-z]+[A-Za-z0-9_]+/
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@o.print '#!/usr/bin/env ruby'
+@o.print "\n"
+@o.print 'require "strscan"'
+@o.print "\n"
+@o.print 'class C_'
+@o.print @t
+@o.print "\n"
+@o.print '$c = self'
+@o.print "\n"
+@o.print 'def compile(str, out)'
+@o.print "\n"
+@o.print '@i, @o = StringScanner.new(str), out'
+@o.print "\n"
+@o.print 'compile_'
+@o.print @t
+@o.print "\n"
+@o.print 'end'
+@o.print "\n"
+begin
+compile_rule
+end while @f
+@f = true
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@i.scan /\s*/; s='.end'; l=s.length;
+@f = (@i.peek(l) == s) ? (@t=s; @i.pos += l) : nil
+raise("error at: " + @i.rest.split("\n")[0]) if !@f
+@o.print 'end'
+@o.print "\n"
+@o.print '$c.new.compile(File.read(ARGV[0]), STDOUT)'
+@o.print "\n"
+end
+end while false
+end
+end
+$c.new.compile(File.read(ARGV[0]), STDOUT)

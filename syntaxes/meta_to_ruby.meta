@@ -1,4 +1,4 @@
-.syntax MetaCompiler
+.syntax program
 
 outarg = '$'          <'@out.print @match   # Print last matched token on output stream'> 
        | .string      <'@out.print ' $ '    # Print literal string on output stream'>;
@@ -28,7 +28,7 @@ exp1 = <'begin'> exp2
 rule = .id          <'def compile_' $> 
        '=' exp1 ';' <'end'>;
 
-MetaCompiler = '.syntax' .id 
+program = '.syntax' .id 
   <'#!/usr/bin/env ruby'>
   <'require "strscan"'>
   <'class StringScanner'>
@@ -57,11 +57,11 @@ MetaCompiler = '.syntax' .id
   <'    @last_matched_token = @match if @match # Update last matched only if a token was matched'>
   <'  end'>
   <'  def report_error'>
-  <'    pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'>
-  <'    post_lines = @in.rest.split("\n")              # lines of input after current position'>
-  <'    message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'>
-  <'    message += post_lines.first.inspect'>
-  <'    message += "\n  Last matched token: #{@last_matched_token}"'>
+  <'    #pre_lines = @in.string[0, @in.pos].split("\n") # lines of input up to current position'>
+  <'    #post_lines = @in.rest.split("\n")              # lines of input after current position'>
+  <'    #message = "PARSE ERROR at line #{pre_lines.length}:\n  " + pre_lines.last.inspect + " @ "'>
+  <'    #message += post_lines.first.inspect'>
+  <'    #message += "\n  Last matched token: #{@last_matched_token}"'>
   <'    #raise message'>
   <'    raise("PARSE ERROR" + @in.inspect)'>
   <'  end'>
@@ -73,8 +73,8 @@ MetaCompiler = '.syntax' .id
   *rule '.end'
   <'end'>
   <'if ARGV.length < 1 || ARGV.length > 2'>
-  <'  puts "ERROR: wrong number of parameters"'>
-  <'  puts "Usage: #{$0} <input_file> [output_file]"'>
+  <'  puts "ERROR: wrong number of parameters\n\n"'>
+  <'  puts "Usage: #{File.basename($0)} <input_file> [output_file]"'>
   <'  exit(-1)'>
   <'else'>
   <'  $compiler_class.compile_file(ARGV[0], ARGV[1])'>
