@@ -22,7 +22,6 @@ class MetaCompiler_program
   def scan strOrRegexp
     @in.scan /\s*/   # Skip whitespace
     @match = @in.scan strOrRegexp
-    # Since nil is same as false in Ruby we can set the flag to the matched token
     @last_matched_token = @match if @match # Update last matched only if a token was matched
   end
   def report_error
@@ -262,8 +261,6 @@ report_error() unless @match
 @out.print '    @in.scan /\s*/   # Skip whitespace'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
 @out.print '    @match = @in.scan strOrRegexp'    # Print literal string on output stream
-@out.print "\n"     # Print newline on output stream
-@out.print '    # Since nil is same as false in Ruby we can set the flag to the matched token'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream
 @out.print '    @last_matched_token = @match if @match # Update last matched only if a token was matched'    # Print literal string on output stream
 @out.print "\n"     # Print newline on output stream

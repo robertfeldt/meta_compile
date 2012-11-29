@@ -54,7 +54,6 @@ program = '.syntax' .id
   <'  def scan strOrRegexp'>
   <'    @in.scan /(\s*(#.*$)?)*/   # Skip whitespace and comments'>
   <'    @match = @in.scan strOrRegexp'>
-  <'    # Since nil is same as false in Ruby we can set the flag to the matched token'>
   <'    @last_matched_token = @match if @match # Update last matched only if a token was matched'>
   <'  end'>
   <'  def report_error'>
