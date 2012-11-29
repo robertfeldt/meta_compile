@@ -9,7 +9,7 @@ def pexec(str)
 end
 
 desc "Bootstrap our version of Long Nguyen's C version of Meta-II"
-task :bootstrap_c do
+task :boot_c do
 	Dir.chdir "bootstrap"
 	puts "1. Build bootstrap compiler"
 	pexec "gcc -o bootstrapped_c bootstrap.c"
@@ -28,42 +28,53 @@ def loc(filename)
 	File.readlines(filename).map {|l| l.strip.length==0?nil:l}.compact.length
 end
 
-desc "Bootstrap the Ruby Meta-II compiler"
-task :bootstrap do
+def bootstrap_from_c(syntaxFile)
+	if syntaxFile =~ /^syntaxes/
+		syntaxf = File.join("..", syntaxFile)
+	else
+		syntaxf = File.join("..", "syntaxes", syntaxFile)
+	end
 	Dir.chdir("bootstrap") do
 		puts "1. Build bootstrap compiler"
 		pexec "gcc -o bootstrapped_c bootstrap.c"
 		puts "2. Use the c meta compiler to compile the meta_to_ruby_minimal.meta description"
-		pexec "./bootstrapped_c ../syntaxes/meta_to_ruby_minimal.meta compile_to_ruby.c"
+		pexec "./bootstrapped_c #{syntaxf} compile_to_ruby.c"
 		puts "3. Build the stepping stone ruby compiler we created from the meta description"
 		pexec "gcc -o meta_r compile_to_ruby.c"
 		puts "4. Now use the generated stepping stone compiler to generate a ruby compiler for the ruby meta syntax"
-		pexec "./meta_r ../syntaxes/meta_to_ruby_minimal.meta meta_ruby_compiler_from_c.rb"
+		pexec "./meta_r #{syntaxf} meta_ruby_compiler_from_c.rb"
 		puts "5. Run the generated ruby meta compiler to a ruby version"
-		pexec "ruby -I. meta_ruby_compiler_from_c.rb ../syntaxes/meta_to_ruby_minimal.meta > meta_ruby_compiler.rb"
+		pexec "ruby -I. meta_ruby_compiler_from_c.rb #{syntaxf} > meta_ruby_compiler.rb"
 		puts "6. Ruby version differ since it has single instead of double quotes around strings"
 		#pexec "diff meta_ruby_compiler_from_c.rb meta_ruby_compiler.rb"
 		puts "7. But we can generate again and ensure it is a meta compiler"
-		pexec "ruby -I. meta_ruby_compiler.rb ../syntaxes/meta_to_ruby_minimal.meta > meta_ruby_compiler2.rb"
+		pexec "ruby -I. meta_ruby_compiler.rb #{syntaxf} > meta_ruby_compiler2.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler2.rb"
 		puts "8. One more round just to show off... :)"
-		pexec "ruby -I. meta_ruby_compiler2.rb ../syntaxes/meta_to_ruby_minimal.meta > meta_ruby_compiler3.rb"
+		pexec "ruby -I. meta_ruby_compiler2.rb #{syntaxf} > meta_ruby_compiler3.rb"
 		pexec "diff meta_ruby_compiler.rb meta_ruby_compiler3.rb"
-		puts "Summary:\nCreated a #{loc('meta_ruby_compiler.rb')} line meta-II meta compiler from a #{loc('../syntaxes/meta_to_ruby_minimal.meta')} line meta-II spec\n\n"
+		puts "Summary:\nCreated a #{loc('meta_ruby_compiler.rb')} line meta-II meta compiler from a #{loc(syntaxf)} line meta-II spec\n\n"
 	end
 end
 
+desc "Bootstrap the Ruby Meta-II compiler (uses the minimal syntax)"
+task :boot do
+	bootstrap_from_c "meta_to_ruby_minimal.meta"
+end
+
 # Bootstrap a syntax from the meta_compile compiler
-def bootstrap_from_meta_compile(syntaxFile)
-	pexec "meta_compile #{syntaxFile} > tgen.rb"
-	ensure_is_meta("tgen.rb", syntaxFile)
+def bootstrap_from_ruby(syntaxFile, targetName = "tgen.rb")
+	syntaxf    = File.join("syntaxes", syntaxFile)
+	# Assumes the ruby version has been bootstrapped from C and is installed as meta_compile
+	pexec "meta_compile #{syntaxf} > #{targetName}"
+	ensure_is_meta(targetName, syntaxf, targetName)
 end
 
 def diff_files(f1, f2)
 	File.read(f1) != File.read(f2)
 end
 
-def ensure_is_meta(generatedFile, specFile)
+def ensure_is_meta(generatedFile, specFile, saveAsTarget = nil)
 	pexec "ruby #{generatedFile} #{specFile} > t.rb"
 	pexec "ruby t.rb #{specFile} > t2.rb"
 	# Obviously we should now be able to go on and on... :)
@@ -74,6 +85,9 @@ def ensure_is_meta(generatedFile, specFile)
 			exit(-1)
 		else
 			puts "YES #{generatedFile} is meta!!! (generated from #{specFile})"
+			FileUtils.mv("t2.rb", saveAsTarget) if saveAsTarget
+			puts "Saved bootstrapped file as #{saveAsTarget}"
+			return true
 		end
 	ensure
 		FileUtils.rm_f Dir.glob("t*.rb")
@@ -81,7 +95,7 @@ def ensure_is_meta(generatedFile, specFile)
 end
 
 desc "Make binary from the bootstrapped ruby meta-II compiler"
-task :make_bin => [:bootstrap] do
+task :make_bin => [:boot] do
 	FileUtils.cp "bootstrap/meta_ruby_compiler.rb", "bin/meta_compile"
 	FileUtils.chmod 0755, "bin/meta_compile"
 	puts "Created binary in bin/meta_compile"
@@ -97,12 +111,17 @@ def bootstrap_with_stepping_stone(syntaxFile, target)
 	stepstonef = File.join("syntaxes", "stepping_stone_" + syntaxFile)
 	pexec "meta_compile #{stepstonef} > tgen_stepstone.rb"
 	pexec "ruby tgen_stepstone.rb #{syntaxf} > #{target}"
-	ensure_is_meta(target, syntaxf)
+	ensure_is_meta(target, syntaxf, target)
 end
 
 desc "Bootstrap the meta compiler that accepts regexps"
-task :bootstrap_re do
-	bootstrap_with_stepping_stone("meta_to_ruby_minimal_with_regexps.meta", "bin/metacomp_re")
+task :boot_regexp do
+	bootstrap_with_stepping_stone("meta_to_ruby_minimal_with_regexps.meta", "bin/metac_regexp")
+end
+
+desc "Bootstrap the readable (but minimal) meta compiler"
+task :boot_readable do
+	bootstrap_from_ruby("meta_to_ruby.meta", "bin/metac_readable")
 end
 
 def run_example(compiler, example)
@@ -112,8 +131,8 @@ def run_example(compiler, example)
 	pexec "ruby #{compiler} #{example}"
 end
 
-def metacomp_re_run_examples(syntaxFile, *inputs)
-	pexec "ruby bin/metacomp_re #{syntaxFile} > tas.rb"
+def metac_regexp_run_examples(syntaxFile, *inputs)
+	pexec "ruby bin/metac_regexp #{syntaxFile} > tas.rb"
 	inputs.each do |i|
 	  run_example("tas.rb", "inputs/#{i}")
 	end
@@ -121,11 +140,11 @@ end
 
 desc "Compile all inputs for the assignments syntax"
 task :ex_ass do
-	metacomp_re_run_examples "syntaxes/assignments.meta", "assignments.input1"
+	metac_regexp_run_examples "syntaxes/assignments.meta", "assignments.input1"
 end
 
 desc "Update line counts in README.template.md to make README.md"
-task :update => [:bootstrap] do
+task :update => [:boot] do
 	rmeta2_compiler_loc = loc('bootstrap/meta_ruby_compiler.rb')
 	rmeta2_spec_loc = loc('syntaxes/meta_to_ruby_minimal.meta')
 	readme = File.read("README.template.md").gsub("%%RMetaII_SPEC_LOC%%", rmeta2_spec_loc.to_s)

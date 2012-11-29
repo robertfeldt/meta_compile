@@ -3,7 +3,7 @@ meta_compile
 
 A meta compilation framework for Ruby à la [Meta-II by Val Schorre](http://ibm-1401.info/Meta-II-schorre.pdf).
 
-This uses a [C version of Meta-II](https://github.com/impeachgod/meta) developed by Long Nguyen to bootstrap a Ruby version from a [fully self-contained, %%RMetaII_SPEC_LOC%% (non-empty) line specification file](https://raw.github.com/robertfeldt/meta_compile/master/syntaxes/meta_to_ruby_minimal.meta). The [generated Ruby Meta-II compiler file](https://github.com/robertfeldt/meta_compile/blob/master/bin/meta_compile) is %%RMetaII_COMPILER_LOC%% lines of Ruby code.
+This uses a [C version of Meta-II](https://github.com/impeachgod/meta) developed by Long Nguyen to bootstrap a Ruby version from a [fully self-contained, %%RMetaII_SPEC_LOC%% (non-empty) line specification file](https://raw.github.com/robertfeldt/meta_compile/master/syntaxes/meta_to_ruby_minimal.meta). The [generated Ruby Meta-II compiler file](https://github.com/robertfeldt/meta_compile/blob/master/bin/meta_compile) is %%RMetaII_COMPILER_LOC%% lines of Ruby code. A more readable and commented version of the specification file [is available here](https://raw.github.com/robertfeldt/meta_compile/master/syntaxes/meta_to_ruby.meta).
 
 Install
 -------
@@ -62,11 +62,11 @@ Let's use this to compile programs which can only contain assignments of numbers
 
 The new thing here compared to the original Meta-II syntax is the two Regexp's (in as and ex1). First we need to bootstrap the meta compiler that accepts regexps:
 
-        rake bootstrap_re
+        rake boot_regexp
 
 Then we create a compiler for the assignments syntax:
 
-        ruby bin/metacomp_re syntaxes/assignments.meta > tas.rb
+        ruby bin/metac_regexp syntaxes/assignments.meta > tas.rb
 
 We now have a compiler for assignments and if we apply it [to the file](https://raw.github.com/robertfeldt/meta_compile/master/inputs/assignments.input1):
 
