@@ -1,9 +1,5 @@
 .syntax assignments
-
 assignments = as *as;
-
 as = /\w+/ <'address ' $> ':=' ex1 <'store'> ';';
-
 ex1 = /\d+/ <'literal ' $>;
-
 .end
